@@ -75,6 +75,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="comctl32.lib gocl.lib"
 				OutputFile=".\Release/GSFGen.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
