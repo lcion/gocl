@@ -121,6 +121,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -202,6 +203,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="del GSFGen\gocl.dll&#x0D;&#x0A;copy Release\gocl.dll GSFGen\gocl.dll&#x0D;&#x0A;del ..\GSFGen\gocl.lib&#x0D;&#x0A;copy Release\gocl.lib GSFGen\gocl.lib"
 			/>
 		</Configuration>
 	</Configurations>
@@ -314,6 +316,10 @@
 			</File>
 			<File
 				RelativePath="gocl.def"
+				>
+			</File>
+			<File
+				RelativePath=".\gocl.rc"
 				>
 			</File>
 			<File
@@ -619,6 +625,10 @@
 			</File>
 			<File
 				RelativePath="ObjTentry.h"
+				>
+			</File>
+			<File
+				RelativePath=".\resource.h"
 				>
 			</File>
 			<File
