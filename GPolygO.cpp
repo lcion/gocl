@@ -161,12 +161,12 @@ BOOL GPolygO::Save(ofstream *dst, LONG nID)
 **********************************************************************/
 BOOL GPolygO::TakeCmtS(LONG *grid, LONG *oid, LPSTR CommentStr)
 {
-	char buffer[20];
-	_ltoa(m_lGOColor, buffer, 10);				strcat(buffer, " ");
-	strcpy(CommentStr, buffer);
-	_ltoa(m_lGOBkndCol, buffer, 10);			strcat(buffer, " ");
-	strcat(CommentStr, buffer);
-	_ltoa(m_bgcolor2, buffer, 10);	strcat(buffer, " ");
-	strcat(CommentStr, buffer);
+	char buffer[SMALL_BUFF];
+	_ltoa_s(m_lGOColor, buffer, SMALL_BUFF, 10);	strcat_s(buffer, SMALL_BUFF, " ");
+	strcpy_s(CommentStr, CMNT_BUFF, buffer);
+	_ltoa_s(m_lGOBkndCol, buffer, SMALL_BUFF, 10);	strcat_s(buffer, SMALL_BUFF, " ");
+	strcat_s(CommentStr, CMNT_BUFF, buffer);
+	_ltoa_s(m_bgcolor2, buffer, SMALL_BUFF, 10);	strcat_s(buffer, SMALL_BUFF, " ");
+	strcat_s(CommentStr, CMNT_BUFF, buffer);
 	return SnglGObj::TakeCmtS(grid, oid, CommentStr);
 }

@@ -26,6 +26,9 @@ using namespace std;
 
 #include "windows.h"
 
+#define SMALL_BUFF 20
+#define CMNT_BUFF 100
+
 class SnglGObj
 {
 public:

@@ -10,8 +10,6 @@
 #endif // _MSC_VER > 1000
 
 #include "SnglGObj.h"
-#define SMALL_BUFF 20
-#define CMNT_BUFF 20
 
 class GBoxO : public SnglGObj  
 {

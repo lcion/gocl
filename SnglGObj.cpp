@@ -158,7 +158,7 @@ BOOL SnglGObj::TakeCmtS(LONG *grid, LONG *oid, LPSTR CommentStr)
 {
 	if(m_strComment)
 	{
-		strcat(CommentStr, m_strComment);
+		strcat_s(CommentStr, CMNT_BUFF, m_strComment);
 		return true;
 	}
 	return false;
