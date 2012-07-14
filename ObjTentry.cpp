@@ -1,0 +1,22 @@
+// ObjTentry.cpp: implementation of the ObjTentry class.
+//
+//////////////////////////////////////////////////////////////////////
+
+#include "ObjTentry.h"
+
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
+
+ObjTentry::ObjTentry(int id, char* name)
+{
+	m_objId = id;
+	m_objName = (char *)malloc(strlen(name)+1);
+	strcpy_s(m_objName, strlen(name)+1, name);
+}
+
+ObjTentry::~ObjTentry()
+{
+	if(m_objName)
+		free(m_objName);
+}

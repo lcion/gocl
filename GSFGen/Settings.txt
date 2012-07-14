@@ -1,0 +1,6 @@
+Proxi = 193.99.1.94:3128
+Gateway = 192.168.10.254
+IP = 192.168.10.169
+POP =	193.99.1.120
+		.218
+3Com Fast EtherLink XL 10/100Mb TX Ethernet NIC (3C905B-TX)

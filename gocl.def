@@ -1,0 +1,24 @@
+LIBRARY   gocl
+
+EXPORTS
+    GOCL_AddView			@2
+	GOCL_SetBounds			@3
+	GOCL_SetVisible			@4
+	GOCL_CloseView			@5
+	GOCL_SetBackgroundColor	@6
+	GOCL_Refresh			@7
+	GOCL_AddText			@8
+	GOCL_SetTextFont		@9
+	GOCL_GobjMoveTo			@10
+	GOCL_GobjMove			@11
+	GOCL_AddBox				@12
+	GOCL_AddCircle			@13
+	GOCL_AddPolygon			@14
+	GOCL_AddGroup			@15
+	GOCL_AddPolyLine		@16
+	GOCL_GobjChgColors		@17
+	GOCL_SaveAllObjects		@18
+	GOCL_LoadAllObjects		@19
+	GOCL_ChangeTxt			@20
+	GOCL_TakeNextCommentStr	@21
+	GOCL_MoveClientW		@22

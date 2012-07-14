@@ -1,0 +1,6 @@
+1. Identificatori unici pentru obiecte + Nume pentru obiecte grafice => gocl version 1.1
+	- tabela de identificatori in ListWMng
+	- objID in SnglGObj
+	- functii de cautare obiect dupa ID in Objects Managers
+
+2. Obtinerea informatiilor despre obiecte => editarea grafica a obiectelor

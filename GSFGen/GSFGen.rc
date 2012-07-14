@@ -1,0 +1,266 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "resource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_GSFGEN              ICON    DISCARDABLE     "GSFGen.ICO"
+IDI_SMALL               ICON    DISCARDABLE     "SMALL.ICO"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDC_GSFGEN MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Load\tCtrl+O",               ID_FILE_LOAD
+        MENUITEM "&SaveAs\tCtrl+S",             ID_FILE_SAVE
+        MENUITEM "E&xit",                       IDM_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&ToolBar",                    ID_VIEW_TOOLBAR
+    END
+    POPUP "&Action"
+    BEGIN
+        MENUITEM "&Start Animation",            ID_ACTION_START
+        MENUITEM "S&top Animation",             ID_ACTION_STOP
+        MENUITEM "Create &Child Window",        ID_ACTION_CREATECHLDW
+        MENUITEM "&Destroy Child Window",       ID_ACTION_DESTCHLDW
+        MENUITEM "Test Memory Lick",            ID_ACTION_TESTMEMORYLICK
+        MENUITEM "Connect ADS",                 ID_ACTION_CONNECTADS
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About ...",                  IDM_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDC_GSFGEN ACCELERATORS MOVEABLE PURE 
+BEGIN
+    "/",            IDM_ABOUT,              ASCII,  ALT, NOINVERT
+    "?",            IDM_ABOUT,              ASCII,  ALT, NOINVERT
+    "O",            ID_FILE_LOAD,           VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  22, 17, 230, 75
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "System"
+BEGIN
+    ICON            IDI_GSFGEN,IDC_MYICON,14,9,20,20
+    LTEXT           "GSFGen Version 1.0",IDC_STATIC,49,10,119,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2000",IDC_STATIC,49,20,119,8
+    DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
+END
+
+IDD_NCREATEOW DIALOG DISCARDABLE  0, 0, 198, 95
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,139,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,139,24,50,14
+    LTEXT           "ID:",IDC_STATIC,11,9,9,8
+    EDITTEXT        IDC_OID,21,7,35,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_OBJECTID,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
+                    UDS_NOTHOUSANDS,45,11,6,12
+    EDITTEXT        IDC_ELEFT,19,36,34,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_OBJECTLP,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,55,31,6,
+                    12
+    EDITTEXT        IDC_ETOP,66,36,34,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_OBJECTTP,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,101,37,6,
+                    12
+    EDITTEXT        IDC_EBOTTOM,19,49,34,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_OBJECTBP,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,54,64,6,
+                    12
+    EDITTEXT        IDC_ERIGHT,66,50,34,12,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_OBJECTRP,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,101,49,6,
+                    12
+    EDITTEXT        IDC_ECOLOR,116,50,28,12,ES_AUTOHSCROLL
+    CONTROL         "Spin2",IDC_SCOLOR,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,126,64,13,
+                    12
+    EDITTEXT        IDC_EBCOLOR,150,50,28,12,ES_AUTOHSCROLL
+    CONTROL         "Spin3",IDC_SBCOLOR,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,165,63,11,
+                    14
+    LTEXT           "R",IDC_STATIC,58,53,8,10
+    LTEXT           "T",IDC_STATIC,58,38,8,10
+    LTEXT           "Position:",IDC_STATIC,17,27,32,8
+    LTEXT           "L",IDC_STATIC,11,39,8,10
+    LTEXT           "B",IDC_STATIC,11,53,8,10
+    LTEXT           "Colors:",IDC_STATIC,117,41,35,8
+    PUSHBUTTON      "Start Recording Points",IDC_STARTRP,58,7,80,14
+    EDITTEXT        IDC_FREETEXT,9,71,172,14,ES_AUTOHSCROLL
+    LTEXT           "Free Parameters:",IDC_STATIC,11,62,53,8
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""resource.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_BOXCNEWO
+    BUTTON      ID_CIRCNEWO
+    BUTTON      ID_LNDCNEWO
+    BUTTON      ID_POGCNEWO
+    BUTTON      ID_POLCNEWO
+    BUTTON      ID_PRSCNEWO
+    BUTTON      ID_REZCNEWO
+    BUTTON      ID_TXTCNEWO
+    BUTTON      ID_DELWO
+    BUTTON      ID_WNDCNEWO
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP  DISCARDABLE     "toolbar1.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_NCREATEOW, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 191
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_APP_TITLE           "GSFGen"
+    IDS_HELLO               "Hello World!"
+    IDC_GSFGEN              "GSFGEN"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_PRSCNEWO             "Create Prs Object"
+    ID_REZCNEWO             "Create Resistance Objject"
+    ID_TXTCNEWO             "Create Text Object"
+    ID_DELWO                "Delete Object"
+    ID_WNDCNEWO             "Create New Window"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_BOXCNEWO             "Create Rectangle Objject"
+    ID_CIRCNEWO             "Create Circle Objject"
+    ID_LNDCNEWO             "Create LND Objject"
+    ID_POGCNEWO             "Create Polygon Objject"
+    ID_POLCNEWO             "Create PolyLine Object"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
