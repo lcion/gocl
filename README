@@ -1,0 +1,15 @@
+Graphic Objects Class Library
+
+The library use window GDI functions to create screens from a text data file.
+
+implemented objects:
+Rectangle (GBoxO)
+Circle (GCircleO)
+Polygon (GPolygO)
+PolyLine (GPolyLO)
+Text (GTxtO)
+
+Composite objects:
+Press 
+Resistor
+...

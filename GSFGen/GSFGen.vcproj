@@ -76,7 +76,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="comctl32.lib gocl.lib"
-				OutputFile=".\Release/GSFGen.exe"
+				OutputFile="..\Bin/$(ConfigurationName)/GSFGen.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ProgramDatabaseFile=".\Release/GSFGen.pdb"
@@ -112,7 +112,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
+			OutputDirectory="../Bin/$(ConfigurationName)"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -174,7 +174,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib comctl32.lib gocl.lib"
-				OutputFile=".\Debug/GSFGen.exe"
+				OutputFile="..\Bin/$(ConfigurationName)/GSFGen.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
