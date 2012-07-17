@@ -723,6 +723,7 @@ BOOL SnglWObj::LoadBox(LONG grp, ifstream *src)
 	*src >> params[3].x;//bcol2;
 	src->getline(szCText, MAX_PATH);
 	params[3].y = (long) &szCText[0];
+	CheckLoadResult(src->fail(), "box", boxID);
 	AddBox(grp, boxID, &params[0]);
 	return true;
 }
@@ -750,6 +751,7 @@ BOOL SnglWObj::LoadMold(LONG grp, ifstream *src)
 	*src >> params[3].x;//col;
 	*src >> params[3].y;//bcol;
 	src->getline(szCText, MAX_PATH);
+	CheckLoadResult(src->fail(), "Mold", boxID);
 	AddMold(grp, boxID, &params[0], szCText);
 	return true;
 }
@@ -778,6 +780,7 @@ BOOL SnglWObj::LoadPolyG(LONG grp, ifstream *src)
 //	*src >> bcol;
 	src->getline(szCText, MAX_PATH);
 	ptab[i].y = (long) &szCText[0];
+	CheckLoadResult(src->fail(), "polygon", pgID);
 	AddPolygon(grp, pgID, ptab, npcts);
 	free(ptab);
 	return true;
@@ -804,6 +807,7 @@ BOOL SnglWObj::LoadPolyL(LONG grp, ifstream *src)
 	}
 	*src >> col;
 	src->getline(szCText, MAX_PATH);
+	CheckLoadResult(src->fail(), "polyLine", plID);
 	AddPolyLine(grp, plID, ptab, npcts, col, szCText);
 	free(ptab);
 	return true;
@@ -836,6 +840,7 @@ BOOL SnglWObj::LoadCircle(LONG grp, ifstream *src)
 	*src >> pointst[2].y;
 	src->getline(szCText, MAX_PATH);
 	pointst[3].x = (long) &szCText[0];
+	CheckLoadResult(src->fail(), "Circle", cirID);
 	AddCircle(grp, cirID, pointst);
 	return true;
 }
@@ -860,7 +865,7 @@ BOOL SnglWObj::LoadPress(LONG grp, ifstream *src)
 	*src >> data[3].x;//color;
 	*src >> data[3].y;//bcolor;
 	src->getline(szCText, MAX_PATH);
-
+	CheckLoadResult(src->fail(), "Press", presID);
 	AddPress(grp, presID, &data[0], szCText);
 	return true;
 }
@@ -884,6 +889,7 @@ BOOL SnglWObj::LoadRez(LONG grp, ifstream *src)
 	*src >> data[2].y; //bottom
 	*src >> data[0].y; //color;
 	src->getline(szCText, MAX_PATH);
+	CheckLoadResult(src->fail(), "Rez", rezID);
 
 	AddRez(grp, rezID, &data[0], szCText);
 	return true;
@@ -975,6 +981,7 @@ BOOL SnglWObj::LoadLogicalAnd(LONG grp, ifstream *src)
 	*src >> params[2].x;//col;
 	*src >> params[2].y;//bcol;
 	src->getline(szCText, MAX_PATH);
+	CheckLoadResult(src->fail(), "LAnd", lndID);
 
 	AddLogicalAnd(grp, lndID, &params[0], szCText);//AddLogicalAnd(LONG grpId, LONG boxID, POINT *params)
 	return true;
@@ -1024,4 +1031,14 @@ void SnglWObj::MoveW(LONG offsetX, LONG offsetY)
 //	GetWindowInfo(m_clsWnd, &wi);
 
 //	SetWindowPos(m_clsWnd, NULL, wi.rcWindow.left + offsetX, wi.rcWindow.top+offsetY, wi.rcWindow.right-wi.rcWindow.left, wi.rcWindow.bottom-wi.rcWindow.top, SWP_NOZORDER);
+}
+
+// check read result
+void SnglWObj::CheckLoadResult(bool bFail, char*objName, int index)
+{
+	if(bFail){
+		char buff[100];
+		sprintf_s(buff, 100, "bad object %s %d", objName, index);
+		OutputDebugString(buff);
+	}
 }

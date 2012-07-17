@@ -48,7 +48,6 @@ public:
 	int m_objId;
 	SnglGObj(int ObjId);
 	virtual ~SnglGObj();
-
 };
 
 #endif // !defined(AFX_SNGLGOBJ_H__EE689A43_D583_11D3_ACBE_00500449492C__INCLUDED_)

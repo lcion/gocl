@@ -74,7 +74,8 @@ public:
 	LONG m_bckgndColor;
 private:
 	static	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
+	// check read result
+	void CheckLoadResult(bool bFail, char*objName, int index);
 };
 
 /*typedef struct tagWINDOWINFO {
