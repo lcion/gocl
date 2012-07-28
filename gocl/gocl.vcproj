@@ -72,7 +72,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile=".\Bin/$(ConfigurationName)/gocl.dll"
+				OutputFile="..\Bin/$(ConfigurationName)/gocl.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\gocl.def"
@@ -170,7 +170,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile=".\Bin/$(ConfigurationName)/gocl.dll"
+				OutputFile="..\Bin/$(ConfigurationName)/gocl.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\gocl.def"
