@@ -1,8 +1,16 @@
-// Node.cpp: implementation of the Node class.
-//
-//////////////////////////////////////////////////////////////////////
+/* Node.cpp *******************************************************
+*	 Description: implementation of the Node class.
+*
+*	Functions:
+*		Node::Node
+*		Node::~Node
+*		
+*		
+*		
+*	Revision:
+*
+**********************************************************************/
 
-//#include "windows.h"
 #include "Node.h"
 
 #ifdef _DEBUG
@@ -11,12 +19,9 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 /*********************************************************************
-* Description:
+* Description:Construction
 *   
 * Revision:
 * 2000-02-23 luci 1.0 New
@@ -28,7 +33,7 @@ Node::Node(){
 }
 
 /*********************************************************************
-* Description:
+* Description:Destruction
 *   
 * Revision:
 * 2000-02-23 luci 1.0 New

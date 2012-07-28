@@ -22,63 +22,73 @@
 #include "GCircleO.h"
 #include "GPolygO.h"
 #include "MulGObj.h"
-#include "GRezO.h"
+#include "GTubO.h"
 #include "GPresO.h"
 #include "GLndO.h"
+
 class SnglWObj  
 {
 public:
+	BOOL DeleteSelectedObj();
+	BOOL GetSelectedObjInfo(void *objInfoStruct);
+	void SetEditMode(UCHAR bEditMode);
+	BOOL DeleteGObject(char *objName);
+	BOOL IsObject(char *objName);
 	void MoveW(LONG x, LONG y);
-	BOOL TakeNextCmtS(LONG *gid, LONG *oid, LPSTR CommentStr);
-	int AddLogicalAnd(LONG grpId, LONG boxID, POINT *params, LPSTR szCText);
-	BOOL LoadLogicalAnd(LONG grp, ifstream *src);
-	void ChangeTxt(LONG grpId, LONG txtoId, LPSTR szText);
+	BOOL TakeNextCmtS(char *gName, char *oName, LPSTR CommentStr);
+	int AddLogicalAnd(char *grpName, char *lndName, POINT *params, LPSTR szCText);
+	BOOL LoadLogicalAnd(char *grpName, ifstream *src);
+	void ChangeTxt(char *grpName, char *txtoName, LPSTR szText);
 	BOOL LoadGroup(ifstream *src, char *readBuf);
-	BOOL LoadCircle(LONG grp, ifstream *src);
-	BOOL LoadPolyL(LONG grp, ifstream *src);
-	BOOL LoadPolyG(LONG grp, ifstream *src);
-	BOOL LoadBox(LONG grp, ifstream *src);
-	BOOL LoadMold(LONG grp, ifstream *src);
-	BOOL LoadText(LONG grp, ifstream *src);
-	BOOL LoadPress(LONG grp, ifstream *src);
-	BOOL LoadRez(LONG grp, ifstream *src);
+	BOOL LoadCircle(char *grpName, ifstream *src);
+	BOOL LoadPolyL(char *grpName, ifstream *src);
+	BOOL LoadPolyG(char* grpName, ifstream *src);
+	BOOL LoadBox(char *grpName, ifstream *src);
+	BOOL LoadMold(char *grpName, ifstream *src);
+	BOOL LoadText(char *grpName, ifstream *src);
+	BOOL LoadPress(char *grpName, ifstream *src);
+	BOOL LoadTub(char *grpName, ifstream *src);
 	BOOL LoadWindowObjects(ifstream *src, char *readBuf);
-	BOOL SaveWindowObjects(ofstream *dst, LONG nID);
-	LONG GobjChgColors(LONG grpId, LONG objID, LONG bcolor, LONG color);
-	LONG AddPolyLine(LONG grpId, LONG plID, POINT *pointArray, int nofpct, LONG color, LPSTR szCText);
-	LONG AddGroup(LONG gID);
-	LONG AddPolygon(LONG grpId, LONG pgID, POINT *pointArray, int nofpct);
-	LONG AddCircle(LONG grpId, LONG cirID, POINT *pointst);
-	int AddBox(LONG grpId, LONG boxID, POINT *params);
-	int AddMold(LONG grpId, LONG boxID, POINT *params, LPSTR szCText);
-	LONG AddPress(LONG grpID, LONG presID, POINT *data, LPSTR szCText);
-	LONG AddRez(LONG grpID, LONG rezID, POINT *data, LPSTR szCText);
-	int Move(LONG grpId, LONG txtoId, POINT point);
-	int MoveTo(LONG grpId, LONG txtoId, POINT point);
-	BOOL SetTextFont(LONG grpId, LONG txtoId, LPSTR fName, int fsize, int fattrib);
+	BOOL SaveWindowObjects(ofstream *dst);
+	LONG GobjChgColors(char *grpName, char *objName, LONG bcolor, LONG color);
+	LONG AddPolyLine(char *grpName, char *plName, POINT *pointArray, int nofpct);
+	LONG AddGroup(char *grpName, char *GroupObjName);
+	LONG AddPolygon(char *szOMName, char *pgName, POINT *pointArray, int nofpct);
+	LONG AddCircle(char *grpName, char *cirName, POINT *pointst);
+	int AddBox(char *grpName, char *boxName, POINT *params);
+	int AddMold(char *grpName, char *moldName, POINT *params, LPSTR szCText);
+	LONG AddPress(char *grpName, char *presName, POINT *data, LPSTR szCText);
+	LONG AddTub(char *grpName, char *tubName, POINT *data, LPSTR szCText);
+	int Move(char *grpName, char *txtoName, POINT point);
+	int MoveTo(char *grpName, char *txtOName, POINT point);
+	BOOL SetTextFont(char *grpName, char *txtName, LPSTR fName, int fsize, int fattrib);
 	void RefreshW();
 	void ComputeBkgnd();
 	int SetBackgroundColor(LONG color);
 	BOOL SetVisible( BOOL visible );
 	int SetBounds(LONG x, LONG y, LONG width, LONG height);
-	int AddText(LONG grpId, LONG txtID, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText);
-	Lista gobjsList;
+	int AddText(char *szOMName, char *txtName, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText);
 	void DrawAllGObj(HDC memHdc);
 	LONG Create(HINSTANCE appInst, LONG color, LONG bkcolor);
-	SnglWObj(HWND hwndParent);
+	SnglWObj(HWND parentHWnd, char *pWndName);
 	virtual ~SnglWObj();
 
+	char *m_WndName;
+	Lista gobjsList;
+//	Lista *m_pNameIdLst;
 	HWND m_parentHWnd;
 	HBITMAP m_bkgndBmp;
 	HWND m_clsWnd;
 	LONG m_bckgndColor;
 private:
+	BOOL SelectWObj(UINT x, UINT y);
+	void CheckLoadResult(bool bFail, char* objName, char* szCText);
+	UCHAR m_bEditMode;
 	static	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	// check read result
-	void CheckLoadResult(bool bFail, char*objName, int index);
-};
 
-/*typedef struct tagWINDOWINFO {
+};
+/*
+typedef struct tagWINDOWINFO {
     DWORD cbSize;
     RECT  rcWindow;
     RECT  rcClient;
@@ -89,12 +99,13 @@ private:
     UINT  cyWindowBorders;
     ATOM  atomWindowType;
     WORD  wCreatorVersion;
-} WINDOWINFO, *PWINDOWINFO, *LPWINDOWINFO;*/
+} WINDOWINFO, *PWINDOWINFO, *LPWINDOWINFO;
 
-/*BOOL WINAPI
+BOOL WINAPI
 GetWindowInfo(
     HWND hwnd,
     PWINDOWINFO pwi
-);*/
+);
+*/
 
 #endif // !defined(AFX_SNGLWOBJ_H__EE689A41_D583_11D3_ACBE_00500449492C__INCLUDED_)

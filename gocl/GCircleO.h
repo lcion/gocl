@@ -14,14 +14,15 @@
 class GCircleO : public SnglGObj  
 {
 public:
+	BOOL GetSelectedObjInfo(void *objInfoStruct);
 	LONG m_bgcolor2;
-	BOOL Save(ofstream *dst, LONG nID);
+	BOOL Save(ofstream *dst);
 	void Redraw(HDC memHdc);
 //	void Create(LONG radius, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText);
 	void Create(POINT *pointst);
-	GCircleO(int ObjId);
+	GCircleO(char *ObjName);
 	virtual ~GCircleO();
-	BOOL TakeCmtS(LONG *grid, LONG *oid, LPSTR CommentStr);
+	BOOL TakeCmtS(char *grName, char *oName, LPSTR CommentStr);
 };
 
 

@@ -5,6 +5,8 @@
 */
 #include "stdafx.h"
 #include "ADScomm.h"
+#include "io.h"
+#include "stdio.h"
 
 /* Function:	ADScomm::ADScomm
 *  Description:	Constructor
@@ -15,6 +17,9 @@
 ADScomm::ADScomm()
 {
 	hInstLAdsCrs = LoadLibrary("ADS_CRS.DLL");
+	if(hInstLAdsCrs == NULL)
+		MessageBox(NULL,"ADS_CRS.DLL NOT Found!","ADS_CRS.DLL NOT Found!",MB_OK);
+	//return;
 	(FARPROC &)lpADS_GetWordByPort = GetProcAddress(hInstLAdsCrs, "ADS_GetWordByPort");
 	(FARPROC &)lpADS_GetArrayByPort = GetProcAddress(hInstLAdsCrs, "ADS_GetArrayByPort");
 }

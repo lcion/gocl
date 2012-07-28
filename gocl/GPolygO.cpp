@@ -14,7 +14,7 @@
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-GPolygO::GPolygO(int ObjId):SnglGObj(ObjId)
+GPolygO::GPolygO(char *ObjName):SnglGObj(ObjName)
 {
 	m_nofPct = 0;
 }
@@ -43,7 +43,7 @@ GPolygO::~GPolygO()
 void GPolygO::Create(POINT *pointst, int nofPt) //, LONG color, LONG bcolor1, LONG bcolor2, LPSTR szCText
 {
 	RECT orct;
-	m_vpobjData = (char *)malloc(sizeof(POINT)*nofPt);
+	m_vpobjData = (char *)new POINT[nofPt];
 	memcpy(m_vpobjData, pointst, sizeof(POINT)*nofPt); //the last long is not used = pointer to the text
 	m_nofPct = nofPt;
 	m_bgcolor2 = pointst[nofPt+1].x;
@@ -74,6 +74,7 @@ void GPolygO::Redraw(HDC memHdc)
 	SelectObject(memHdc, oldBrush);
 	DeleteObject(crtBrush);
 	SetBkColor(memHdc,lastBkColor);
+	SnglGObj::Redraw(memHdc);
 }
 
 /*********************************************************************
@@ -142,15 +143,15 @@ int GPolygO::Move(HWND hWnd, POINT mhlPoint)
 * Revision:
 * 2000-05-17 luci 1.0 New
 **********************************************************************/
-BOOL GPolygO::Save(ofstream *dst, LONG nID)
+BOOL GPolygO::Save(ofstream *dst)
 {
-
 	POINT *pPoliPct = (POINT *)m_vpobjData;
-	*dst << "POG " << nID << " "<< m_nofPct << " ";
+
+	*dst << "POG " << m_GOName << " "<< m_nofPct << " ";
 	for(int i = 0; i < m_nofPct; i++)
 		*dst << pPoliPct[i].x << " " << pPoliPct[i].y << " ";
 	*dst <<	m_lGOColor << " " << m_lGOBkndCol << " " << pPoliPct[m_nofPct+1].x;
-	return SnglGObj::Save(dst, nID);
+	return SnglGObj::Save(dst);
 }
 
 /*********************************************************************
@@ -159,14 +160,28 @@ BOOL GPolygO::Save(ofstream *dst, LONG nID)
 * Revision:
 * 2000-05-17 luci 1.0 New
 **********************************************************************/
-BOOL GPolygO::TakeCmtS(LONG *grid, LONG *oid, LPSTR CommentStr)
+BOOL GPolygO::TakeCmtS(char *grName, char *oName, LPSTR CommentStr)
 {
 	char buffer[SMALL_BUFF];
-	_ltoa_s(m_lGOColor, buffer, SMALL_BUFF, 10);	strcat_s(buffer, SMALL_BUFF, " ");
+	_ltoa_s(m_lGOColor, buffer, SMALL_BUFF, 10);
+	strcat_s(buffer, SMALL_BUFF, " ");
 	strcpy_s(CommentStr, CMNT_BUFF, buffer);
-	_ltoa_s(m_lGOBkndCol, buffer, SMALL_BUFF, 10);	strcat_s(buffer, SMALL_BUFF, " ");
+	_ltoa_s(m_lGOBkndCol, buffer, SMALL_BUFF, 10);
+	strcat_s(buffer, SMALL_BUFF, " ");
 	strcat_s(CommentStr, CMNT_BUFF, buffer);
-	_ltoa_s(m_bgcolor2, buffer, SMALL_BUFF, 10);	strcat_s(buffer, SMALL_BUFF, " ");
+	_ltoa_s(m_bgcolor2, buffer, SMALL_BUFF, 10);
+	strcat_s(buffer, SMALL_BUFF, " ");
 	strcat_s(CommentStr, CMNT_BUFF, buffer);
-	return SnglGObj::TakeCmtS(grid, oid, CommentStr);
+	return SnglGObj::TakeCmtS(grName, oName, CommentStr);
+}
+
+BOOL GPolygO::GetSelectedObjInfo(void *objInfoStruct)
+{
+	if(!SnglGObj::GetSelectedObjInfo(objInfoStruct))
+		return FALSE;
+	OBJINFO *pObjInfo = (OBJINFO *)objInfoStruct;
+	pObjInfo->objType = POLYGID;
+	pObjInfo->dNoOfPoints = m_nofPct;
+	pObjInfo->vpObjData = m_vpobjData;
+	return TRUE;
 }

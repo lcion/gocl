@@ -14,7 +14,7 @@
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-GTxtO::GTxtO(int ObjId):SnglGObj(ObjId)
+GTxtO::GTxtO(char *ObjName):SnglGObj(ObjName)
 {
 	m_fname = NULL;
 }
@@ -28,7 +28,7 @@ GTxtO::GTxtO(int ObjId):SnglGObj(ObjId)
 GTxtO::~GTxtO()
 {
 	if(m_fname)
-		free(m_fname);
+		delete m_fname;
 	m_fname = NULL;
 }
 
@@ -79,6 +79,7 @@ void GTxtO::Redraw(HDC memHdc)
 	}
 	SetBkColor(memHdc, lastBkColor);
 	SetTextColor(memHdc, lastColor);
+	SnglGObj::Redraw(memHdc);
 }
 
 /*********************************************************************
@@ -103,7 +104,7 @@ void GTxtO::Create(HWND m_clsWnd, LPSTR szText, LONG x, LONG y, LONG color, LONG
 
 	SnglGObj::Create(rt.left, rt.top, rt.right, rt.bottom, color, bcolor, szCText);
 
-	m_vpobjData = (char*)malloc(strlen(szText) + 1);
+	m_vpobjData = (char*)new char[strlen(szText) + 1];
 	strcpy_s(m_vpobjData, strlen(szText) + 1, szText);
 	ReleaseDC(m_clsWnd, hdc);
 }
@@ -116,7 +117,7 @@ void GTxtO::Create(HWND m_clsWnd, LPSTR szText, LONG x, LONG y, LONG color, LONG
 **********************************************************************/
 void GTxtO::SetFont(char *fname, int size, int attrib)
 {
-	m_fname = (char*)malloc(strlen(fname)+1);
+	m_fname = new char[strlen(fname)+1];
 	strcpy_s(m_fname, strlen(fname)+1, fname);
 	m_dfsize = size;
 	m_dfattr = attrib;
@@ -128,9 +129,9 @@ void GTxtO::SetFont(char *fname, int size, int attrib)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL GTxtO::Save(ofstream *dst, LONG nID)
+BOOL GTxtO::Save(ofstream *dst)
 {
-	*dst << "TXT " << nID <<" "<< strlen(m_vpobjData) << " " << m_vpobjData << " " <<
+	*dst << "TXT " << m_GOName <<" "<< strlen(m_vpobjData) << " " << m_vpobjData << " " <<
 		m_objRect.left << " " << m_objRect.top << " " <<	m_lGOColor <<
 		" " << m_lGOBkndCol;
 	if(m_fname)
@@ -138,7 +139,7 @@ BOOL GTxtO::Save(ofstream *dst, LONG nID)
 	else
 		*dst << " 0";
 
-	return SnglGObj::Save(dst, nID);
+	return SnglGObj::Save(dst);
 }
 
 void GTxtO::ChangeTxt(HWND m_clsWnd, LPSTR szText)// ChangeTxt(LONG txtoId, LPSTR szText)
@@ -155,8 +156,21 @@ void GTxtO::ChangeTxt(HWND m_clsWnd, LPSTR szText)// ChangeTxt(LONG txtoId, LPST
 	rt.right = rt.left + SizeT.cx;
 
 	memcpy(&m_objRect, &rt, sizeof(RECT));
-	free(m_vpobjData);
-	m_vpobjData = (char*)malloc(strlen(szText) + 1);
+	delete m_vpobjData;
+	m_vpobjData = new char[strlen(szText) + 1];
 	strcpy_s(m_vpobjData, strlen(szText) + 1, szText);
 	ReleaseDC(m_clsWnd, hdc);
+}
+
+BOOL GTxtO::GetSelectedObjInfo(void *objInfoStruct)
+{
+	if(!SnglGObj::GetSelectedObjInfo(objInfoStruct))
+		return FALSE;
+	OBJINFO *pObjInfo = (OBJINFO *)objInfoStruct;
+	pObjInfo->objType = TXTID;
+	pObjInfo->vpObjData = m_vpobjData;
+	pObjInfo->fntName = m_fname;
+	pObjInfo->dNoOfPoints = m_dfsize;
+	pObjInfo->GOBColor1 = m_dfattr;
+	return TRUE;
 }

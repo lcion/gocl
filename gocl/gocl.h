@@ -23,7 +23,7 @@ LONG APIENTRY GOCL_AddView(HWND handle);
 BOOL APIENTRY GOCL_SetBounds(LONG hidx, LONG x, LONG y, LONG width, LONG height);
 BOOL APIENTRY GOCL_SetVisible(LONG hidx, BOOL visible);
 LONG APIENTRY GOCL_GobjChgColors(LONG wID, LONG grpId, LONG objID, LONG bcolor, LONG color);
-BOOL APIENTRY GOCL_CloseView(LONG hidx);
+BOOL APIENTRY GOCL_DeleteGObject(LONG hidx);
 WORD APIENTRY GOCL_SetBackgroundColor(LONG hidx, LONG color);
 BOOL APIENTRY GOCL_Refresh(LONG hidx);
 LONG APIENTRY GOCL_AddGroup(LONG wndId, LONG gID);

@@ -14,7 +14,7 @@
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-GCircleO::GCircleO(int ObjId):SnglGObj(ObjId)
+GCircleO::GCircleO(char *ObjName):SnglGObj(ObjName)
 {
 
 }
@@ -74,6 +74,7 @@ void GCircleO::Redraw(HDC memHdc)
 	SelectObject(memHdc, oldBrush);
 	DeleteObject(crtBrush);
 	SetBkColor(memHdc,lastBkColor);
+	SnglGObj::Redraw(memHdc);
 }
 
 /*********************************************************************
@@ -82,12 +83,12 @@ void GCircleO::Redraw(HDC memHdc)
 * Revision:
 * 2000-05-17 luci 1.0 New
 **********************************************************************/
-BOOL GCircleO::Save(ofstream *dst, LONG nID)
+BOOL GCircleO::Save(ofstream *dst)
 {
 	LONG r = (m_objRect.right-m_objRect.left)/2;
-	*dst << "CIR " <<nID<<" "<< r << " " << m_objRect.left + r << 
+	*dst << "CIR " << m_GOName <<" "<< r << " " << m_objRect.left + r << 
 		" " << m_objRect.top + r << " " << m_lGOColor << " " << m_lGOBkndCol << " " << m_bgcolor2;
-	return SnglGObj::Save(dst, nID);
+	return SnglGObj::Save(dst);
 }
 
 /*********************************************************************
@@ -96,14 +97,27 @@ BOOL GCircleO::Save(ofstream *dst, LONG nID)
 * Revision:
 * 2000-05-17 luci 1.0 New
 **********************************************************************/
-BOOL GCircleO::TakeCmtS(LONG *grid, LONG *oid, LPSTR CommentStr)
+BOOL GCircleO::TakeCmtS(char *grName, char *oName, LPSTR CommentStr)
 {
 	char buffer[SMALL_BUFF];
-	_ltoa_s(m_lGOColor, buffer, SMALL_BUFF, 10);	strcat_s(buffer, SMALL_BUFF, " ");
+	_ltoa_s(m_lGOColor, buffer, SMALL_BUFF, 10);
+	strcat_s(buffer, SMALL_BUFF, " ");
 	strcpy_s(CommentStr, CMNT_BUFF, buffer);
-	_ltoa_s(m_lGOBkndCol, buffer, SMALL_BUFF, 10);	strcat_s(buffer, SMALL_BUFF, " ");
+	_ltoa_s(m_lGOBkndCol, buffer, SMALL_BUFF, 10);
+	strcat_s(buffer, SMALL_BUFF, " ");
 	strcat_s(CommentStr, CMNT_BUFF, buffer);
-	_ltoa_s(m_bgcolor2, buffer, SMALL_BUFF, 10);	strcat_s(buffer, SMALL_BUFF, " ");
+	_ltoa_s(m_bgcolor2, buffer, SMALL_BUFF, 10);
+	strcat_s(buffer, SMALL_BUFF, " ");
 	strcat_s(CommentStr, CMNT_BUFF, buffer);
-	return SnglGObj::TakeCmtS(grid, oid, CommentStr);
+	return SnglGObj::TakeCmtS(grName, oName, CommentStr);
+}
+
+BOOL GCircleO::GetSelectedObjInfo(void *objInfoStruct)
+{
+	if(!SnglGObj::GetSelectedObjInfo(objInfoStruct))
+		return FALSE;
+	OBJINFO *pObjInfo = (OBJINFO *)objInfoStruct;
+	pObjInfo->objType = CIRCLEID;
+	return TRUE;
+
 }

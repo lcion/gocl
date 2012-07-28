@@ -18,12 +18,13 @@
 class GTxtO : public SnglGObj  
 {
 public:
+	BOOL GetSelectedObjInfo(void *objInfoStruct);
 	void ChangeTxt(HWND m_clsWnd, LPSTR szText);
-	BOOL Save(ofstream *dst, LONG nID);
+	BOOL Save(ofstream *dst);
 	void SetFont(char *fname, int size, int attrib);
 	void Create(HWND m_clsWnd, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText);
 	void Redraw(HDC memHdc);
-	GTxtO(int ObjId);
+	GTxtO(char *ObjName);
 	virtual ~GTxtO();
 
 private:

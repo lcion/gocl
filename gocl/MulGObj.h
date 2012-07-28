@@ -17,32 +17,36 @@
 #include "GCircleO.h"
 #include "GPolygO.h"
 #include "GPolyLO.h"
-#include "GRezO.h"
+#include "GTubO.h"
 #include "GPresO.h"
 #include "GLndO.h"
 #include "GMoldO.h"
 class MulGObj : public SnglGObj
 {
 public:
-	LONG AddMold(LONG boxID, POINT *params, LPSTR szCText);
-	BOOL TakeCmtS(LONG *grid, LONG *oid, LPSTR CommentStr);
-	int AddLogicalAnd(LONG boxID, POINT *params, LPSTR szCText);
-	void ChangeTxt(LONG txtoId, LPSTR szText);
-	LONG AddPress(LONG presID, POINT *data, LPSTR szCText);
-	LONG AddRez(LONG rezID, POINT *data, LPSTR szCText);
-	BOOL Save(ofstream *dst, LONG nID);
-	LONG GobjChgColors(LONG objID, LONG bcolor, LONG color);
-	LONG AddPolyLine(LONG plID, POINT *pointArray, int nofpct, LONG color, LPSTR szCText);
+	BOOL GetSelectedObjInfo(void *objInfoStruct);
+	BOOL SelectGObject(UINT x, UINT y);
+	BOOL DeleteGObject(char *objName);
+	BOOL IsObject(char *objName);
+	LONG AddMold(char *moldName, POINT *params, LPSTR szCText);
+	BOOL TakeCmtS(char *gid, char *oid, LPSTR CommentStr);
+	int AddLogicalAnd(char *landName, POINT *params, LPSTR szCText);
+	void ChangeTxt(char *txtoName, LPSTR szText);
+	LONG AddPress(char *presName, POINT *data, LPSTR szCText);
+	LONG AddTub(char *tubName, POINT *data, LPSTR szCText);
+	BOOL Save(ofstream *dst);
+	LONG GobjChgColors(char *objName, LONG bcolor, LONG color);
+	LONG AddPolyLine(char *plName, POINT *pointArray, int nofpct);
 	void Redraw(HDC memHdc);
-	MulGObj( int ObjId, HWND hclsWnd );
+	MulGObj( char *ObjName, HWND hclsWnd );
 	virtual ~MulGObj();
-	LONG	AddPolygon(LONG pgID, POINT *pointArray, int nofpct); //, LONG color, LONG bcolor, LPSTR szCText
-	LONG	AddCircle(LONG cirID, POINT *pointst);
-	int		AddBox(LONG boxID, POINT *params);
-	int		Move(LONG txtoId, POINT point);
-	int		MoveTo(LONG txtoId, POINT point);
-	BOOL	SetTextFont(LONG txtoId, LPSTR fName, int fsize, int fattrib);
-	int		AddText(LONG txtID, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText);
+	LONG	AddPolygon(char *pgName, POINT *pointArray, int nofpct);
+	LONG	AddCircle(char *cirName, POINT *pointst);
+	int		AddBox(char *boxName, POINT *params);
+	int		Move(char *txtoName, POINT point);
+	int		MoveTo(char *txtoName, POINT point);
+	BOOL	SetTextFont(char *txtOName, LPSTR fName, int fsize, int fattrib);
+	int		AddText(char* txtName, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText);
 
 	HBITMAP m_bkgndBmp;
 	HWND m_clsWnd;

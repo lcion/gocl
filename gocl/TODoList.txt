@@ -1,6 +1,142 @@
-1. Identificatori unici pentru obiecte + Nume pentru obiecte grafice => gocl version 1.1
-	- tabela de identificatori in ListWMng
-	- objID in SnglGObj
-	- functii de cautare obiect dupa ID in Objects Managers
+2000.09.06
+- auto move child window on toolbar show/hide
 
-2. Obtinerea informatiilor despre obiecte => editarea grafica a obiectelor
+2000.09.08
+- Unic identifiers for graphical objects
+- The graphical objects accept names or identifiers
+- loading and building the objects name list.
+
+2000.09.11
+- saving graphical object with names
+- In the library will be kept a identifiers table
+- Each graphical object will now it's name
+
+2000.09.12
+- work in the plant (repartitioning the IPC's)
+
+2000.09.13
+- Functions to search by Name in Objects Managers
+- medical exams
+
+2000.09.14
+- Test for unic object Name in Object Managers
+
+2000.09.15
+Install Windows NT & work in the plant.
+
+2000.09.18
+- Move the development projects from the Windows 95 to Windows NT.
+- Test the new version of piping under Windows NT.
+
+2000.09.19
+
+- the Groups can contain other groups => objects tree
+
+** Graphical editing of objects.
+
+2000.09.20
+- work in the plant
+
+2000.09.21
+- The user can create new objects using a default object
+
+2000.09.22
+- The user can set the colors for the graphical objects
+
+2000.09.25
+- Changed the create object function from (WndName, GroupName, NewObjName, ...) to :(ObjectManagerName, NewObjName, ...)
+- The user can select an object using it's name
+
+2000.09.26
+- Visual Creating the graphical objects using the toolbar of the GSFGen application.
+
+2000.09.27
+- process the extra parameter from free text editBox as comments
+
+2000.09.28
+- facility to delete a graphical objec from the toolbar
+
+2000.09.29
+- facility to choose a color from the system color palete
+
+2000.10.02
+- facility to choose a font from the system fonts
+
+2000.10.03
+- changed the toolbar inseting new buttons for objects and actions.
+
+2000.10.04
+- Add the Mold object to the toolbar
+- Cursor Bug Fixed in the piping.exe
+
+2000.10.05
+- Select a graphical object on a left mouse click
+- set Edit Mode for all windows
+
+2000.10.06
+- provide a way to take informations from GOCL objects in the GSFGen object's mask.
+	(GetSelectedObjInfo)
+- Edit the selected Box object
+
+2000.10.09
+- Edit the other selected objects (Circle, LogicalAnd, Polygone, Polyline, Press, Tube, Text, Molder)
+
+2000.10.10
+- fix font and comment edit Box for Text Objects
+
+2000.10.11
+- work in the plant
+
+2000.10.12
+- Set the capture to mouse when recording points
+
+2000.10.13
+- Capture up left point and right bottom point from the picture to BOX grapgical object
+
+2000.10.16
+- recording points button function (peek up the coordinates directly from the picture)
+	for the rest of graphical objects
+
+2000.10.17
+- delete the selected graphical object on pushing the DEL key
+
+2000.10.18
+- Move the selected graphical object using the arrow keys.
+
+2000.10.19
+- Copy/Paste the selected object
+
+2000.10.20
+- Group Objects (Create groups, edit groups name)
+
+2000.10.23
+- Write specifications documents and prepare the applications for a presentation.
+
+2000.10.24
+- Write specifications documents and prepare the applications for a presentation.
+
+2000.10.25
+- Write specifications documents and prepare the applications for a presentation.
+
+2000.10.26
+- Write specifications documents and prepare the applications for a presentation.
+
+2000.10.27
+- Test ADS connection menubar (after piping algorithm)
+- rearange the gsfgen code creating a class architecture
+- fix the object manager name on the selected object
+
+- Select object by object name
+
+- edit the window position and background color
+
+- keeping ALT key pressed when you click on the graphical object will select just 
+	the most appropriate control point
+
+- calculate distance betwin two points from the screen
+
+- Checking an existing script file for errors
+
+- import from DIB files
+
+- Use OPC Server in Piping.exe.

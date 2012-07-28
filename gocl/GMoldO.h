@@ -14,10 +14,11 @@
 class GMoldO : public SnglGObj  
 {
 public:
-	BOOL Save(ofstream *dst, LONG nID);
+	BOOL GetSelectedObjInfo(void *objInfoStruct);
+	BOOL Save(ofstream *dst);
 	void Redraw(HDC owindowDC);
 	void Create(POINT *params, LPSTR szCText);
-	GMoldO(int ObjId);
+	GMoldO(char *ObjName);
 	virtual ~GMoldO();
 
 };

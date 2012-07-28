@@ -1,5 +1,5 @@
 Microsoft Developer Studio Workspace File, Format Version 6.00
-# WARNUNG: DIESE ARBEITSBEREICHSDATEI DARF NICHT BEARBEITET ODER GELÖSCHT WERDEN!
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
 
 ###############################################################################
 
@@ -8,7 +8,23 @@ Project: "GSFGen"=.\GSFGen.dsp - Package Owner=<4>
 Package=<5>
 {{{
     begin source code control
-    "$/Produkt", BAAAAAAA
+    "$/GSFGen", BAAAAAAA
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "gocl"=..\gocl\gocl.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    "$/GSFGen", BAAAAAAA
     .
     end source code control
 }}}

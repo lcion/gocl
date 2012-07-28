@@ -1,24 +1,24 @@
 # Microsoft Developer Studio Project File - Name="GSFGen" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** NICHT BEARBEITEN **
+# ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
 CFG=GSFGen - Win32 Debug
-!MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit NMAKE
-!MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den Befehl
+!MESSAGE This is not a valid makefile. To build this project using NMAKE,
+!MESSAGE use the Export Makefile command and run
 !MESSAGE 
 !MESSAGE NMAKE /f "GSFGen.mak".
 !MESSAGE 
-!MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
-!MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
+!MESSAGE You can specify a configuration when running NMAKE
+!MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
 !MESSAGE NMAKE /f "GSFGen.mak" CFG="GSFGen - Win32 Debug"
 !MESSAGE 
-!MESSAGE Für die Konfiguration stehen zur Auswahl:
+!MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "GSFGen - Win32 Release" (basierend auf  "Win32 (x86) Application")
-!MESSAGE "GSFGen - Win32 Debug" (basierend auf  "Win32 (x86) Application")
+!MESSAGE "GSFGen - Win32 Release" (based on "Win32 (x86) Application")
+!MESSAGE "GSFGen - Win32 Debug" (based on "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -40,6 +40,7 @@ RSC=rc.exe
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /Yu"stdafx.h" /FD /c
@@ -52,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib comctl32.lib gocl.lib /nologo /subsystem:windows /machine:I386
 
 !ELSEIF  "$(CFG)" == "GSFGen - Win32 Debug"
 
@@ -91,7 +92,15 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\AboutCode.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ADScomm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ADSconnect.cpp
 # End Source File
 # Begin Source File
 
@@ -100,6 +109,10 @@ SOURCE=.\GSFGen.cpp
 # Begin Source File
 
 SOURCE=.\GSFGen.rc
+# End Source File
+# Begin Source File
+
+SOURCE=.\NewObjDlg.cpp
 # End Source File
 # Begin Source File
 
@@ -112,11 +125,27 @@ SOURCE=.\StdAfx.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\AboutCode.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ADScomm.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ADSconnect.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\gocl.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\GSFGen.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\NewObjDlg.h
 # End Source File
 # Begin Source File
 

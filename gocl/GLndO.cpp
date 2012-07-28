@@ -22,7 +22,7 @@
 * Revision:
 * 2000-03-16 luci 1.0 New
 **********************************************************************/
-GLndO::GLndO(int ObjId):SnglGObj(ObjId)
+GLndO::GLndO(char *ObjName):SnglGObj(ObjName)
 {
 	
 }
@@ -44,12 +44,12 @@ GLndO::~GLndO()
 * Revision:
 * 2000-03-16 luci 1.0 New
 **********************************************************************/
-BOOL GLndO::Save(ofstream *dst, LONG nID)
+BOOL GLndO::Save(ofstream *dst)
 {
-	*dst << "LND " <<nID<<" "<< m_objRect.left << " " << m_objRect.top  << " " 
+	*dst << "LND " << m_GOName <<" "<< m_objRect.left << " " << m_objRect.top  << " " 
 		<< m_objRect.right<< " " << m_objRect.bottom<< " " << m_lGOColor 
 		<< " " << m_lGOBkndCol ;
-	return SnglGObj::Save(dst, nID);
+	return SnglGObj::Save(dst);
 }
 
 /*********************************************************************
@@ -99,6 +99,7 @@ void GLndO::Redraw(HDC memHdc)
 	DeleteObject(crtPen);
 	SelectObject(memHdc, oldBrush);
 	DeleteObject(crtBrush);
+	SnglGObj::Redraw(memHdc);
 }
 
 /*********************************************************************
@@ -112,4 +113,19 @@ void GLndO::Redraw(HDC memHdc)
 void GLndO::Create(POINT *params, LPSTR szCText)
 {
 	SnglGObj::Create(params[0].x, params[0].y, params[1].x, params[1].y, params[2].x, params[2].y, szCText);
+}
+
+/*********************************************************************
+* Description:
+*
+* Revision:
+* 2000-03-16 luci 1.0 New
+**********************************************************************/
+BOOL GLndO::GetSelectedObjInfo(void *objInfoStruct)
+{
+	if(!SnglGObj::GetSelectedObjInfo(objInfoStruct))
+		return FALSE;
+	OBJINFO *pObjInfo = (OBJINFO *)objInfoStruct;
+	pObjInfo->objType = LNDID;
+	return TRUE;
 }

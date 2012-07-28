@@ -14,7 +14,7 @@
 * Revision:
 * 2000-03-16 luci 1.0 New
 **********************************************************************/
-GMoldO::GMoldO(int ObjId):SnglGObj(ObjId)
+GMoldO::GMoldO(char *ObjName):SnglGObj(ObjName)
 {
 
 }
@@ -36,12 +36,12 @@ GMoldO::~GMoldO()
 * Revision:
 * 2000-03-24 luci 1.0 New
 **********************************************************************/
-BOOL GMoldO::Save(ofstream *dst, LONG nID)
+BOOL GMoldO::Save(ofstream *dst)
 {
-	*dst << "MLD " << nID <<" "<< m_objRect.left << " " << m_objRect.top  << " " 
+	*dst << "MLD " << m_GOName <<" "<< m_objRect.left << " " << m_objRect.top  << " " 
 		<< m_objRect.right << " " << m_objRect.bottom << " " << m_lGOColor 
 		<< " " << m_lGOBkndCol;
-	return SnglGObj::Save(dst, nID);
+	return SnglGObj::Save(dst);
 }
 
 /*********************************************************************
@@ -93,6 +93,7 @@ void GMoldO::Redraw(HDC memHdc)
 	DeleteObject(bPen);
 	SelectObject(memHdc, oldBrush);
 	DeleteObject(crtBrush);
+	SnglGObj::Redraw(memHdc);
 }
 
 /*********************************************************************
@@ -109,8 +110,24 @@ void GMoldO::Create(POINT *params, LPSTR szCText)
 {
 	SnglGObj::Create(params[0].x, params[0].y, params[1].x, params[1].y, params[3].x, params[3].y, szCText);
 
-	m_vpobjData = (char *)malloc(sizeof(POINT));
+	m_vpobjData = (char *)new POINT;
 	POINT *nofL = (POINT*)m_vpobjData;
 	nofL->x = params[2].x;
 	nofL->y = params[2].y;
+}
+
+/*********************************************************************
+* Description:
+*
+* Revision:
+* 2000-03-24 luci 1.0 New
+**********************************************************************/
+BOOL GMoldO::GetSelectedObjInfo(void *objInfoStruct)
+{
+	if(!SnglGObj::GetSelectedObjInfo(objInfoStruct))
+		return FALSE;
+	OBJINFO *pObjInfo = (OBJINFO *)objInfoStruct;
+	pObjInfo->objType = MOLDID;
+	pObjInfo->vpObjData = m_vpobjData;
+	return TRUE;
 }

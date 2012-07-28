@@ -13,11 +13,17 @@
 class Node  
 {
 public:
-	char * strnID;
+//node name
+	char *strnID;
+//node ID
 	int nID;
+//class pointer
 	DATA_TYPE LpvCls;
-	Node * next;
+//pointer to next node in the list
+	Node *next;
+//constructor
 	Node();
+//destructor
 	virtual ~Node();
 
 };

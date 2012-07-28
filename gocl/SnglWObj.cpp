@@ -2,6 +2,16 @@
 *	 Description: implementation of the SnglWObj class.
 *
 *	Functions:
+*		SnglWObj::GetSelectedObjInfo
+*		SnglWObj::SelectWObj
+*		SnglWObj::SetEditMode
+*		SnglWObj::DeleteGObject
+*		SnglWObj::IsObject
+*		SnglWObj::MoveW
+*		SnglWObj::TakeNextCmtS
+*		SnglWObj::AddLogicalAnd
+*		SnglWObj::LoadLogicalAnd
+*		SnglWObj::ChangeTxt
 *		SnglWObj::LoadGroup
 *		SnglWObj::LoadCircle
 *		SnglWObj::LoadPolyL
@@ -33,7 +43,7 @@
 *		SnglWObj::WndProc
 *
 *	Revision:
-*		
+*		2000-10-05 luci 1.0 New
 **********************************************************************/
 
 #include "SnglWObj.h"
@@ -45,11 +55,15 @@
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-SnglWObj::SnglWObj(HWND parentHWnd)
+SnglWObj::SnglWObj(HWND parentHWnd, char *pWndName)
 {
+	m_WndName = new char[strlen(pWndName)+1];
+	strcpy_s(m_WndName, strlen(pWndName)+1, pWndName);
+
 	m_parentHWnd = parentHWnd;
 	m_bkgndBmp = NULL;
 	m_bckgndColor = 0;
+	m_bEditMode = 0;
 }
 
 /*********************************************************************
@@ -60,6 +74,8 @@ SnglWObj::SnglWObj(HWND parentHWnd)
 **********************************************************************/
 SnglWObj::~SnglWObj()
 {
+	delete m_WndName;
+	m_WndName = NULL;
 	Node *pListItem = gobjsList.GetFirstItem();
 	while(pListItem != NULL)
 	{
@@ -95,7 +111,7 @@ LONG SnglWObj::Create(HINSTANCE appInst, LONG color, LONG bkcolor)
 		wc.cbWndExtra     = 0;
 		wc.hInstance      = appInst;
 		wc.hIcon          = NULL;
-		wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
+		wc.hCursor        = NULL;
 		wc.hbrBackground  = (HBRUSH)(COLOR_WINDOW + 1);
 		wc.lpszMenuName   = NULL;
 		wc.lpszClassName  = STR_CLASSNAME;
@@ -147,30 +163,25 @@ LRESULT CALLBACK SnglWObj::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARA
       break;
 
     case WM_SETCURSOR:
-			return TRUE;
+         SetCursor(LoadCursor( NULL, MAKEINTRESOURCE(IDC_ARROW) ) );
+         return (LRESULT)TRUE;
 
     case WM_PALETTECHANGED:
 			if ((HWND)wParam == hWnd)
-			break;
-		case WM_PAINT:
-			pThis->RefreshW();
-			break;
-		case WM_SIZE:
+		break;
+	case WM_PAINT:
+		pThis->RefreshW();
+		break;
+	case WM_SIZE:
+		pThis->ComputeBkgnd();
+		break;
+	case WM_LBUTTONUP:
+		if(pThis->m_bEditMode){
+			pThis->SelectWObj(LOWORD(lParam), HIWORD(lParam));
 			pThis->ComputeBkgnd();
-			break;
-    case WM_KEYDOWN:
-			switch( wParam )
-			{
-			case VK_ESCAPE:
-			case VK_F12:
-				PostMessage(hWnd,WM_CLOSE,0,0);
-				break;
-			}
+		}
 		break;
 
-    case WM_DESTROY:
-//			PostQuitMessage( 0 );
-			break;
     }
 
     return DefWindowProc(hWnd, message, wParam, lParam);
@@ -199,19 +210,17 @@ void SnglWObj::DrawAllGObj(HDC memHdc)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-int SnglWObj::AddText(LONG grpId, LONG txtID, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText)
+int SnglWObj::AddText(char *grpName, char *txtName, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText)
 {
-	if(grpId == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		if(gobjsList.CheckNewID(txtID) == -1)
-			return -1;
-		GTxtO *pGobj = new GTxtO(txtID);
+		GTxtO *pGobj = new GTxtO(txtName);
 		pGobj->Create(m_clsWnd, szText, x, y, color, bcolor, szCText);
-		gobjsList.AddNode(txtID, pGobj);
-		return txtID;
+		gobjsList.AddNode(txtName, pGobj);
+		return 1;
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpId);
-	return grpObj->AddText(txtID, szText, x, y, color, bcolor, szCText);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->AddText(txtName, szText, x, y, color, bcolor, szCText);
 }
 
 /*********************************************************************
@@ -319,12 +328,10 @@ void SnglWObj::RefreshW()
 {
 	POINT	stPoint;
 	RECT tmpr;
-	SetCursor(LoadCursor(NULL, IDC_ARROW));
 	if(m_bkgndBmp)
 	{
 		PAINTSTRUCT ps;
 		HDC hdcCldW= BeginPaint(m_clsWnd, &ps);
-
 
 		HDC SourceDC = CreateCompatibleDC( hdcCldW );
 
@@ -351,16 +358,16 @@ void SnglWObj::RefreshW()
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL SnglWObj::SetTextFont(LONG grpId, LONG txtoId, LPSTR fName, int fsize, int fattrib)
+BOOL SnglWObj::SetTextFont(char *grpName, char *txtName, LPSTR fName, int fsize, int fattrib)
 {
-	if(grpId == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		GTxtO *gtxtO = (GTxtO*) gobjsList.GetHandle(txtoId);
+		GTxtO *gtxtO = (GTxtO*) gobjsList.GetHandle(txtName);
 		gtxtO->SetFont(fName, fsize, fattrib);
 		return true;
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpId);
-	return grpObj->SetTextFont(txtoId, fName, fsize, fattrib);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->SetTextFont(txtName, fName, fsize, fattrib);
 }
 
 /*********************************************************************
@@ -369,16 +376,16 @@ BOOL SnglWObj::SetTextFont(LONG grpId, LONG txtoId, LPSTR fName, int fsize, int 
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-int SnglWObj::MoveTo(LONG grpId, LONG txtoId, POINT point)
+int SnglWObj::MoveTo(char *grpName, char *txtOName, POINT point)
 {
-	if(grpId == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		GTxtO *gtxtO = (GTxtO*) gobjsList.GetHandle(txtoId);
+		GTxtO *gtxtO = (GTxtO*) gobjsList.GetHandle(txtOName);
 		
 		return gtxtO->MoveTo(m_clsWnd, point);
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpId);
-	return grpObj->MoveTo(txtoId, point);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->MoveTo(txtOName, point);
 }
 
 /*********************************************************************
@@ -387,15 +394,15 @@ int SnglWObj::MoveTo(LONG grpId, LONG txtoId, POINT point)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-int SnglWObj::Move(LONG grpId, LONG txtoId, POINT point)
+int SnglWObj::Move(char *grpName, char *oName, POINT point)
 {
-	if(grpId == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		SnglGObj *gtxtO = (SnglGObj*) gobjsList.GetHandle(txtoId);
+		SnglGObj *gtxtO = (SnglGObj*) gobjsList.GetHandle(oName);
 		return gtxtO->Move(m_clsWnd, point);
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpId);
-	return grpObj->Move(txtoId, point);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->Move(oName, point);
 }
 
 /*********************************************************************
@@ -404,19 +411,17 @@ int SnglWObj::Move(LONG grpId, LONG txtoId, POINT point)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-int SnglWObj::AddBox(LONG grpId, LONG boxID, POINT *params)
+int SnglWObj::AddBox(char *grpName, char *boxName, POINT *params)
 {
-	if(grpId == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		if(gobjsList.CheckNewID(boxID) == -1)
-			return -1;
-		GBoxO *pGobj = new GBoxO(boxID);
+		GBoxO *pGobj = new GBoxO(boxName);
 		pGobj->Create(params);
-		gobjsList.AddNode(boxID, pGobj);
-		return boxID;
+		gobjsList.AddNode(boxName, pGobj);
+		return 1;
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpId);
-	return grpObj->AddBox( boxID, params);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->AddBox( boxName, params);
 }
 
 /*********************************************************************
@@ -425,19 +430,17 @@ int SnglWObj::AddBox(LONG grpId, LONG boxID, POINT *params)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-int SnglWObj::AddMold(LONG grpId, LONG moldID, POINT *params, LPSTR szCText)
+int SnglWObj::AddMold(char *grpName, char *moldName, POINT *params, LPSTR szCText)
 {
-	if(grpId == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		if(gobjsList.CheckNewID(moldID) == -1)
-			return -1;
-		GMoldO *pGobj = new GMoldO(moldID);
+		GMoldO *pGobj = new GMoldO(moldName);
 		pGobj->Create(params, szCText);
-		gobjsList.AddNode(moldID, pGobj);
-		return moldID;
+		gobjsList.AddNode(moldName, pGobj);
+		return 1;
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpId);
-	return grpObj->AddMold( moldID, params, szCText);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->AddMold( moldName, params, szCText);
 }
 
 /*********************************************************************
@@ -446,19 +449,17 @@ int SnglWObj::AddMold(LONG grpId, LONG moldID, POINT *params, LPSTR szCText)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG SnglWObj::AddCircle(LONG grpId, LONG cirID, POINT *pointst)
+LONG SnglWObj::AddCircle(char *grpName, char *cirName, POINT *pointst)
 {
-	if(grpId == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		if(gobjsList.CheckNewID(cirID) == -1)
-			return -1;
-		GCircleO *pGobj = new GCircleO(cirID);
+		GCircleO *pGobj = new GCircleO(cirName);
 		pGobj->Create(pointst);
-		gobjsList.AddNode(cirID, pGobj);
-		return cirID;
+		gobjsList.AddNode(cirName, pGobj);
+		return 1;
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpId);
-	return grpObj->AddCircle(cirID, pointst);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->AddCircle(cirName, pointst);
 }
 
 /*********************************************************************
@@ -467,20 +468,17 @@ LONG SnglWObj::AddCircle(LONG grpId, LONG cirID, POINT *pointst)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG SnglWObj::AddPolygon(LONG grpId, LONG pgID, POINT *pointArray, int nofpct )//LONG color, LONG bcolor, LPSTR szCText
+LONG SnglWObj::AddPolygon(char *grpName, char *pgName, POINT *pointArray, int nofpct )
 {
-	if(grpId == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		if(gobjsList.CheckNewID(pgID) == -1)
-			return -1;
-		GPolygO *pGobj = new GPolygO(grpId);
+		GPolygO *pGobj = new GPolygO(pgName);
 		pGobj->Create(pointArray, nofpct);//, color, bcolor, szCText
-//		LONG theID = gobjsList.GetNewID();
-		gobjsList.AddNode(pgID, pGobj);
-		return pgID;
+		gobjsList.AddNode(pgName, pGobj);
+		return 1;
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpId);
-	return grpObj->AddPolygon(pgID, pointArray, nofpct);//, color, bcolor, szCText
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->AddPolygon(pgName, pointArray, nofpct);//, color, bcolor, szCText
 }
 
 /*********************************************************************
@@ -489,16 +487,18 @@ LONG SnglWObj::AddPolygon(LONG grpId, LONG pgID, POINT *pointArray, int nofpct )
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG SnglWObj::AddGroup(LONG gID)
+LONG SnglWObj::AddGroup(char *grpName, char *GroupObjName)
 {
-	if(gobjsList.CheckNewID(gID) == -1)
-		return -1;
-	MulGObj *pGobj = new MulGObj(gID, m_clsWnd);
-//	LONG theID = gobjsList.GetNewID();
-	gobjsList.AddNode(gID, pGobj);
-	return gID;
+/*	if(strcmp(m_WndName, grpName) == 0)
+	{*/
+		MulGObj *pGobj = new MulGObj(GroupObjName, m_clsWnd);
+		gobjsList.AddNode(GroupObjName, pGobj);
+		return 1;
+	}/*
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->AddGroup("",GroupObjName);//, color, bcolor, szCText
 }
-
+*/
 
 /*********************************************************************
 * Description:
@@ -506,20 +506,17 @@ LONG SnglWObj::AddGroup(LONG gID)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG SnglWObj::AddPolyLine(LONG grpId, LONG plID, POINT *pointArray, int nofpct, LONG color, LPSTR szCText)
+LONG SnglWObj::AddPolyLine(char *grpName, char *plName, POINT *pointArray, int nofpct)
 {
-	if(grpId == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		if(gobjsList.CheckNewID(plID) == -1)
-			return -1;
-		GPolyLO *pGobj = new GPolyLO(grpId);
-		pGobj->Create(pointArray, nofpct, color, szCText);
-//		LONG theID = gobjsList.GetNewID();
-		gobjsList.AddNode(plID, pGobj);
-		return plID;
+		GPolyLO *pGobj = new GPolyLO(plName);
+		pGobj->Create(pointArray, nofpct);
+		gobjsList.AddNode(plName, pGobj);
+		return 1;
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpId);
-	return grpObj->AddPolyLine(plID, pointArray, nofpct, color, szCText);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->AddPolyLine(plName, pointArray, nofpct);
 }
 
 /*********************************************************************
@@ -528,19 +525,17 @@ LONG SnglWObj::AddPolyLine(LONG grpId, LONG plID, POINT *pointArray, int nofpct,
 * Revision:
 * 2000-03-7 luci 1.0 New
 **********************************************************************/
-LONG SnglWObj::AddRez(LONG grpID, LONG rezID, POINT *data, LPSTR szCText)
+LONG SnglWObj::AddTub(char *grpName, char *tubName, POINT *data, LPSTR szCText)
 {
-	if(grpID == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		if(gobjsList.CheckNewID(rezID) == -1)
-			return -1;
-		GRezO *pGobj = new GRezO(rezID);
+		GTubO *pGobj = new GTubO(tubName);
 		pGobj->Create(data, szCText);
-		gobjsList.AddNode(rezID, pGobj);
-		return rezID;
+		gobjsList.AddNode(tubName, pGobj);
+		return 1;
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpID);
-	return grpObj->AddRez(rezID, data, szCText);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->AddTub(tubName, data, szCText);
 }
 
 /*********************************************************************
@@ -549,19 +544,17 @@ LONG SnglWObj::AddRez(LONG grpID, LONG rezID, POINT *data, LPSTR szCText)
 * Revision:
 * 2000-03-7 luci 1.0 New
 **********************************************************************/
-LONG SnglWObj::AddPress(LONG grpID, LONG presID, POINT *data, LPSTR szCText)
+LONG SnglWObj::AddPress(char *grpName, char *presName, POINT *data, LPSTR szCText)
 {
-	if(grpID == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		if(gobjsList.CheckNewID(presID) == -1)
-			return -1;
-		GPresO *pGobj = new GPresO(presID);
+		GPresO *pGobj = new GPresO(presName);
 		pGobj->Create(data, szCText);
-		gobjsList.AddNode(presID, pGobj);
-		return presID;
+		gobjsList.AddNode(presName, pGobj);
+		return 1;
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpID);
-	return grpObj->AddPress(presID, data, szCText);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->AddPress(presName, data, szCText);
 }
 
 
@@ -571,15 +564,15 @@ LONG SnglWObj::AddPress(LONG grpID, LONG presID, POINT *data, LPSTR szCText)
 * Revision:
 * 2000-03-02 luci 1.0 New
 **********************************************************************/
-LONG SnglWObj::GobjChgColors(LONG grpId, LONG objID, LONG bcolor, LONG color)
+LONG SnglWObj::GobjChgColors(char *grpName, char *objName, LONG bcolor, LONG color)
 {
-	if(grpId == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		SnglGObj *gtxtO = (SnglGObj*) gobjsList.GetHandle(objID);
+		SnglGObj *gtxtO = (SnglGObj*) gobjsList.GetHandle(objName);
 		return gtxtO->GobjChgColors(bcolor, color);
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpId);
-	return grpObj->GobjChgColors(objID, bcolor, color);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->GobjChgColors(objName, bcolor, color);
 }
 
 /*********************************************************************
@@ -588,7 +581,7 @@ LONG SnglWObj::GobjChgColors(LONG grpId, LONG objID, LONG bcolor, LONG color)
 * Revision:
 * 2000-03-02 luci 1.0 New
 **********************************************************************/
-BOOL SnglWObj::SaveWindowObjects(ofstream *dst, LONG nID)
+BOOL SnglWObj::SaveWindowObjects(ofstream *dst)
 {
 	RECT tmpr;
 	LONG ret=GetWindowRect(  m_clsWnd, &tmpr );
@@ -596,13 +589,13 @@ BOOL SnglWObj::SaveWindowObjects(ofstream *dst, LONG nID)
 	cpoint.x = tmpr.left;
 	cpoint.y = tmpr.top;
 	ScreenToClient(m_parentHWnd, &cpoint);
-	*dst << "BWND " <<nID<<" "<< " " << cpoint.x << " " << cpoint.y << " " << tmpr.right-tmpr.left 
+	*dst << "BWND " << m_WndName <<" "<< " " << cpoint.x << " " << cpoint.y << " " << tmpr.right-tmpr.left 
 		<< " " << tmpr.bottom-tmpr.top << " " << m_bckgndColor << endl;
 	Node *pListItem = gobjsList.GetFirstItem();
 	while(pListItem != NULL)
 	{
 		SnglGObj *pGObj = (SnglGObj *)pListItem->LpvCls;
-		pGObj->Save(dst, pListItem->nID);
+		pGObj->Save(dst);
 		pListItem = pListItem->next;
 	}
 	*dst << "EWND" << endl;
@@ -622,39 +615,39 @@ BOOL SnglWObj::LoadWindowObjects(ifstream *src, char *readBuf)
 	{
 		if(strcmp(readBuf, "TXT") == 0)
 		{
-			LoadText(-1, src);
+			LoadText(m_WndName, src);
 		}
 		else if(strcmp(readBuf, "BOX") == 0)
 		{
-			LoadBox(-1, src);
+			LoadBox(m_WndName, src);
 		}
 		else if(strcmp(readBuf, "POG") == 0)
 		{
-			LoadPolyG(-1, src);
+			LoadPolyG(m_WndName, src);
 		}
 		else if(strcmp(readBuf, "POL") == 0)
 		{
-			LoadPolyL(-1, src);
+			LoadPolyL(m_WndName, src);
 		}
 		else if(strcmp(readBuf, "CIR") == 0)
 		{
-			LoadCircle(-1, src);
+			LoadCircle(m_WndName, src);
 		}
 		else if(strcmp(readBuf, "PRS") == 0)
 		{
-			LoadPress(-1, src);
+			LoadPress(m_WndName, src);
 		}
 		else if(strcmp(readBuf, "TUB") == 0)
 		{
-			LoadRez(-1, src);
+			LoadTub(m_WndName, src);
 		}
 		else if(strcmp(readBuf, "LND") == 0)
 		{
-			LoadLogicalAnd(-1, src);//LoadLogicalAnd(LONG grp, ifstream *src)
+			LoadLogicalAnd(m_WndName, src);//LoadLogicalAnd(LONG grp, ifstream *src)
 		}
 		else if(strcmp(readBuf, "MLD") == 0)
 		{
-			LoadMold(-1, src);
+			LoadMold(m_WndName, src);
 		}
 		else if(strcmp(readBuf, "BGRP") == 0)
 		{
@@ -671,12 +664,16 @@ BOOL SnglWObj::LoadWindowObjects(ifstream *src, char *readBuf)
 * Revision:
 * 2000-03-03 luci 1.0 New
 **********************************************************************/
-BOOL SnglWObj::LoadText(LONG grp, ifstream *src)
+BOOL SnglWObj::LoadText(char *grpName, ifstream *src)
 {
 	int txtLen;
 	char readBuf[MAX_PATH], szCText[MAX_PATH], fontName[MAX_PATH];
-	LONG x, y, color, bcolor, txtID, fsize, fprop;
-	*src >> txtID;
+	LONG x, y, color, bcolor, fsize, fprop;
+	*src >> szCText;	//text object name
+
+	char *pTxtName = new char[strlen(szCText)+1];
+	strcpy_s( pTxtName, strlen(szCText)+1, szCText);
+
 	*src >> txtLen;
 	src->get();
 	src->get(readBuf, txtLen+1);
@@ -693,9 +690,12 @@ BOOL SnglWObj::LoadText(LONG grp, ifstream *src)
 		*src >> fprop; // font properties
 	}
 	src->getline(szCText, MAX_PATH);
-	LONG ntxtID = AddText(grp, txtID, readBuf, x, y, color, bcolor, szCText);
+	CheckLoadResult(src->fail(), "Txt", pTxtName);
+
+	LONG ntxtID = AddText(grpName, pTxtName, readBuf, x, y, color, bcolor, szCText);
 	if(txtLen > 0)
-		SetTextFont(grp, txtID, fontName, fsize, fprop);
+		SetTextFont(grpName, pTxtName, fontName, fsize, fprop);
+	delete pTxtName;
 	return true;
 }
 
@@ -708,12 +708,15 @@ BOOL SnglWObj::LoadText(LONG grp, ifstream *src)
 * Revision:
 * 2000-03-03 luci 1.0 New
 **********************************************************************/
-BOOL SnglWObj::LoadBox(LONG grp, ifstream *src)
+BOOL SnglWObj::LoadBox(char *grpName, ifstream *src)
 {
 	char szCText[MAX_PATH];
-	LONG boxID;
 	POINT params[4];
-	*src >> boxID;
+	*src >> szCText;	//box object Name
+
+	char *pBoxName = new char[strlen(szCText)+1];
+	strcpy_s( pBoxName, strlen(szCText)+1, szCText);
+
 	*src >> params[0].x; //first point x;
 	*src >> params[0].y; //first point y;
 	*src >> params[1].x;//second point x;
@@ -722,9 +725,12 @@ BOOL SnglWObj::LoadBox(LONG grp, ifstream *src)
 	*src >> params[2].y;//bcol1;
 	*src >> params[3].x;//bcol2;
 	src->getline(szCText, MAX_PATH);
+	CheckLoadResult(src->fail(), "Box", pBoxName);
+
 	params[3].y = (long) &szCText[0];
-	CheckLoadResult(src->fail(), "box", boxID);
-	AddBox(grp, boxID, &params[0]);
+	AddBox(grpName, pBoxName, &params[0]);
+
+	delete pBoxName;
 	return true;
 }
 
@@ -736,12 +742,14 @@ BOOL SnglWObj::LoadBox(LONG grp, ifstream *src)
 * Revision:
 * 2000-03-03 luci 1.0 New
 **********************************************************************/
-BOOL SnglWObj::LoadMold(LONG grp, ifstream *src)
+BOOL SnglWObj::LoadMold(char *grpName, ifstream *src)
 {
 	char szCText[MAX_PATH];
-	LONG boxID;
 	POINT params[4];
-	*src >> boxID;
+	*src >> szCText;
+	char *pMldName = new char[strlen(szCText)+1];
+	strcpy_s( pMldName, strlen(szCText)+1, szCText);
+
 	*src >> params[0].x; //first point x;
 	*src >> params[0].y; //first point y;
 	*src >> params[1].x;//second point x;
@@ -751,8 +759,11 @@ BOOL SnglWObj::LoadMold(LONG grp, ifstream *src)
 	*src >> params[3].x;//col;
 	*src >> params[3].y;//bcol;
 	src->getline(szCText, MAX_PATH);
-	CheckLoadResult(src->fail(), "Mold", boxID);
-	AddMold(grp, boxID, &params[0], szCText);
+	CheckLoadResult(src->fail(), "Mold", pMldName);
+
+	AddMold(grpName, pMldName, &params[0], szCText);
+
+	delete pMldName;
 	return true;
 }
 
@@ -762,27 +773,32 @@ BOOL SnglWObj::LoadMold(LONG grp, ifstream *src)
 * Revision:
 * 2000-03-03 luci 1.0 New
 **********************************************************************/
-BOOL SnglWObj::LoadPolyG(LONG grp, ifstream *src)
+BOOL SnglWObj::LoadPolyG(char* grpName, ifstream *src)
 {
-	LONG npcts, pgID;
+	LONG npcts;
 	POINT *ptab;
 	char szCText[MAX_PATH];
-	*src >> pgID;
+	*src >> szCText;	//Polygon object Name
+	char *pPogName = new char[strlen(szCText)+1];
+	strcpy_s( pPogName, strlen(szCText)+1, szCText);
+
 	*src >> npcts;
-	ptab = (POINT*)malloc(sizeof(POINT)*(npcts+2));
+	ptab = new POINT[npcts+2];
 	int i;
 	for(i = 0; i < npcts+1; i++)
 	{
 		*src >> ptab[i].x;
 		*src >> ptab[i].y;
 	}
-	*src >> ptab[i].x;
-//	*src >> bcol;
+	*src >> ptab[i].x;//bcolor 2
 	src->getline(szCText, MAX_PATH);
+	CheckLoadResult(src->fail(), "PolyG", pPogName);
+
 	ptab[i].y = (long) &szCText[0];
-	CheckLoadResult(src->fail(), "polygon", pgID);
-	AddPolygon(grp, pgID, ptab, npcts);
-	free(ptab);
+	AddPolygon(grpName, pPogName, ptab, npcts);
+
+	delete ptab;
+	delete pPogName;
 	return true;
 }
 
@@ -792,24 +808,32 @@ BOOL SnglWObj::LoadPolyG(LONG grp, ifstream *src)
 * Revision:
 * 2000-03-03 luci 1.0 New
 **********************************************************************/
-BOOL SnglWObj::LoadPolyL(LONG grp, ifstream *src)
+BOOL SnglWObj::LoadPolyL(char *grpName, ifstream *src)
 {
-	LONG npcts, col, plID;
+	LONG npcts;
 	POINT *ptab;
 	char szCText[MAX_PATH];
-	*src >> plID;
+
+	*src >> szCText;	//PolyLine object Name
+	char *pPolName = new char[strlen(szCText)+1];
+	strcpy_s( pPolName, strlen(szCText)+1, szCText);
+
 	*src >> npcts;
-	ptab = (POINT*)malloc(sizeof(POINT)*npcts);
-	for(int i = 0; i < npcts; i++)
+	ptab = new POINT[npcts+1];
+	int i;
+	for(i = 0; i < npcts; i++)
 	{
 		*src >> ptab[i].x;
 		*src >> ptab[i].y;
 	}
-	*src >> col;
+	*src >> ptab[i].x;	//color
 	src->getline(szCText, MAX_PATH);
-	CheckLoadResult(src->fail(), "polyLine", plID);
-	AddPolyLine(grp, plID, ptab, npcts, col, szCText);
-	free(ptab);
+	CheckLoadResult(src->fail(), "PolyL", pPolName);
+	ptab[i].y = (LONG)szCText;
+	AddPolyLine(grpName, pPolName, ptab, npcts);
+
+	delete pPolName;
+	delete ptab;
 	return true;
 }
 
@@ -826,12 +850,15 @@ BOOL SnglWObj::LoadPolyL(LONG grp, ifstream *src)
 * Revision:
 * 2000-03-03 luci 1.0 New
 **********************************************************************/
-BOOL SnglWObj::LoadCircle(LONG grp, ifstream *src)
+BOOL SnglWObj::LoadCircle(char *grpName, ifstream *src)
 {
-	LONG cirID; //radius, x, y, color, bcolor, 
 	POINT pointst[4];
 	char szCText[MAX_PATH];
-	*src >> cirID;
+
+	*src >> szCText;	//Circle object Name
+	char *pCirName = new char[strlen(szCText)+1];
+	strcpy_s( pCirName, strlen(szCText)+1, szCText);
+
 	*src >> pointst[0].x;
 	*src >> pointst[0].y;
 	*src >> pointst[1].x;
@@ -840,8 +867,10 @@ BOOL SnglWObj::LoadCircle(LONG grp, ifstream *src)
 	*src >> pointst[2].y;
 	src->getline(szCText, MAX_PATH);
 	pointst[3].x = (long) &szCText[0];
-	CheckLoadResult(src->fail(), "Circle", cirID);
-	AddCircle(grp, cirID, pointst);
+	CheckLoadResult(src->fail(), "Circle", pCirName);
+
+	AddCircle(grpName, pCirName, pointst);
+	delete pCirName;
 	return true;
 }
 
@@ -851,12 +880,14 @@ BOOL SnglWObj::LoadCircle(LONG grp, ifstream *src)
 * Revision:
 * 2000-03-07 luci 1.0 New
 **********************************************************************/
-BOOL SnglWObj::LoadPress(LONG grp, ifstream *src)
+BOOL SnglWObj::LoadPress(char *grpName, ifstream *src)
 {
-	LONG presID;
 	POINT data[4];
 	char szCText[MAX_PATH];
-	*src >> presID;
+	*src >> szCText;	//Circle object Name
+	char *pPrsName = new char[strlen(szCText)+1];
+	strcpy_s( pPrsName, strlen(szCText)+1, szCText);
+
 	*src >> data[0].x; //thick;
 	*src >> data[1].x; //left
 	*src >> data[1].y; //top
@@ -865,8 +896,10 @@ BOOL SnglWObj::LoadPress(LONG grp, ifstream *src)
 	*src >> data[3].x;//color;
 	*src >> data[3].y;//bcolor;
 	src->getline(szCText, MAX_PATH);
-	CheckLoadResult(src->fail(), "Press", presID);
-	AddPress(grp, presID, &data[0], szCText);
+	CheckLoadResult(src->fail(), "Press", szCText);
+
+	AddPress(grpName, pPrsName, &data[0], szCText);
+	delete pPrsName;
 	return true;
 }
 
@@ -876,12 +909,14 @@ BOOL SnglWObj::LoadPress(LONG grp, ifstream *src)
 * Revision:
 * 2000-03-07 luci 1.0 New
 **********************************************************************/
-BOOL SnglWObj::LoadRez(LONG grp, ifstream *src)
+BOOL SnglWObj::LoadTub(char *grpName, ifstream *src)
 {
-	LONG rezID;
 	POINT data[3];
 	char szCText[MAX_PATH];
-	*src >> rezID;
+	*src >> szCText;	//Tube object Name
+	char *pTubName = new char[strlen(szCText)+1];
+	strcpy_s( pTubName, strlen(szCText)+1, szCText);
+
 	*src >> data[0].x; //number of crosses;
 	*src >> data[1].x; //left
 	*src >> data[1].y; //top
@@ -889,9 +924,10 @@ BOOL SnglWObj::LoadRez(LONG grp, ifstream *src)
 	*src >> data[2].y; //bottom
 	*src >> data[0].y; //color;
 	src->getline(szCText, MAX_PATH);
-	CheckLoadResult(src->fail(), "Rez", rezID);
+	CheckLoadResult(src->fail(), "Tub", szCText);
 
-	AddRez(grp, rezID, &data[0], szCText);
+	AddTub(grpName, pTubName, &data[0], szCText);
+	delete pTubName;
 	return true;
 }
 
@@ -903,51 +939,61 @@ BOOL SnglWObj::LoadRez(LONG grp, ifstream *src)
 **********************************************************************/
 BOOL SnglWObj::LoadGroup(ifstream *src, char *readBuf)
 {
-	LONG gId;
-	*src >> gId;
-	AddGroup(gId);
+	char szCText[MAX_PATH];
+//	*src >> gId;
+	*src >> szCText;	//Group object Name
+	char *pGrpName = new char[strlen(szCText)+1];
+	strcpy_s( pGrpName, strlen(szCText)+1, szCText);
+
+	AddGroup(pGrpName, pGrpName);
 	*src >> readBuf;
 
-	while( strcmp(readBuf, "TXT") == 0 || strcmp(readBuf, "BOX") == 0 || strcmp(readBuf, "POG") == 0 || strcmp(readBuf, "POL") == 0 || strcmp(readBuf, "CIR") == 0 || strcmp(readBuf, "PRS") == 0 || strcmp(readBuf, "TUB") == 0 || strcmp(readBuf, "LND") == 0 || strcmp(readBuf, "MLD") == 0)
+	while( strcmp(readBuf, "TXT") == 0 || strcmp(readBuf, "BOX") == 0 || strcmp(readBuf, "POG") == 0 || strcmp(readBuf, "POL") == 0 || strcmp(readBuf, "CIR") == 0 || strcmp(readBuf, "PRS") == 0 || strcmp(readBuf, "TUB") == 0 || strcmp(readBuf, "LND") == 0 || strcmp(readBuf, "MLD") == 0 || strcmp(readBuf, "BGRP") == 0)
 	{
 		if(strcmp(readBuf, "TXT") == 0)
 		{
-			LoadText(gId, src);
+			LoadText(pGrpName, src);
 		}
 		else if(strcmp(readBuf, "BOX") == 0)
 		{
-			LoadBox(gId, src);
+			LoadBox(pGrpName, src);
 		}
 		else if(strcmp(readBuf, "POG") == 0)
 		{
-			LoadPolyG(gId, src);
+			LoadPolyG(pGrpName, src);
 		}
 		else if(strcmp(readBuf, "POL") == 0)
 		{
-			LoadPolyL(gId, src);
+			LoadPolyL(pGrpName, src);
 		}
 		else if(strcmp(readBuf, "CIR") == 0)
 		{
-			LoadCircle(gId, src);
+			LoadCircle(pGrpName, src);
 		}
 		else if(strcmp(readBuf, "PRS") == 0)
 		{
-			LoadPress(gId, src);
+			LoadPress(pGrpName, src);
 		}
 		else if(strcmp(readBuf, "TUB") == 0)
 		{
-			LoadRez(gId, src);
+			LoadTub(pGrpName, src);
 		}
 		else if(strcmp(readBuf, "LND") == 0)
 		{
-			LoadLogicalAnd(gId, src);
+			LoadLogicalAnd(pGrpName, src);
 		}
 		else if(strcmp(readBuf, "MLD") == 0)
 		{
-			LoadMold(gId, src);
+			LoadMold(pGrpName, src);
+		}
+		else if(strcmp(readBuf, "BGRP") == 0)
+		{
+			LoadGroup(src, readBuf);
 		}
 		*src >> readBuf;
 	}
+
+	delete pGrpName;
 	return true;
 }
 
@@ -957,23 +1003,31 @@ BOOL SnglWObj::LoadGroup(ifstream *src, char *readBuf)
 * Revision:
 * 2000-03-21 luci 1.0 New
 **********************************************************************/
-void SnglWObj::ChangeTxt(LONG grpId, LONG txtoId, LPSTR szText)
+void SnglWObj::ChangeTxt(char *grpName, char *txtoName, LPSTR szText)
 {
-	if(grpId == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		GTxtO *gtxtO = (GTxtO*) gobjsList.GetHandle(txtoId);
+		GTxtO *gtxtO = (GTxtO*) gobjsList.GetHandle(txtoName);
 		gtxtO->ChangeTxt(m_clsWnd,szText);
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpId);
-	grpObj->ChangeTxt(txtoId, szText);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	grpObj->ChangeTxt(txtoName, szText);
 }
 
-BOOL SnglWObj::LoadLogicalAnd(LONG grp, ifstream *src)
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-03-21 luci 1.0 New
+**********************************************************************/
+BOOL SnglWObj::LoadLogicalAnd(char *grpName, ifstream *src)
 {
-	LONG lndID;
 	POINT params[3];
 	char szCText[MAX_PATH];
-	*src >> lndID;
+	*src >> szCText;	//LogicalAnd object Name
+	char *pLndName = new char[strlen(szCText)+1];
+	strcpy_s( pLndName, strlen(szCText)+1, szCText);
+
 	*src >> params[0].x; //first point x;
 	*src >> params[0].y; //first point y;
 	*src >> params[1].x;//second point x;
@@ -981,9 +1035,10 @@ BOOL SnglWObj::LoadLogicalAnd(LONG grp, ifstream *src)
 	*src >> params[2].x;//col;
 	*src >> params[2].y;//bcol;
 	src->getline(szCText, MAX_PATH);
-	CheckLoadResult(src->fail(), "LAnd", lndID);
+	CheckLoadResult(src->fail(), "LAnd", szCText);
 
-	AddLogicalAnd(grp, lndID, &params[0], szCText);//AddLogicalAnd(LONG grpId, LONG boxID, POINT *params)
+	AddLogicalAnd(grpName, pLndName, &params[0], szCText);//AddLogicalAnd(char *grpName, LONG boxID, POINT *params)
+	delete pLndName;
 	return true;
 }
 
@@ -993,19 +1048,17 @@ BOOL SnglWObj::LoadLogicalAnd(LONG grp, ifstream *src)
 * Revision:
 * 2000-03-21 luci 1.0 New
 **********************************************************************/
-int SnglWObj::AddLogicalAnd(LONG grpId, LONG lndID, POINT *params, LPSTR szCText)
+int SnglWObj::AddLogicalAnd(char *grpName, char *lndName, POINT *params, LPSTR szCText)
 {
-	if(grpId == NO_GROUP)
+	if(strcmp(m_WndName, grpName) == 0)
 	{
-		if(gobjsList.CheckNewID(lndID) == -1)
-			return -1;
-		GLndO *pGobj = new GLndO(lndID);
+		GLndO *pGobj = new GLndO(lndName);
 		pGobj->Create(params, szCText);
-		gobjsList.AddNode(lndID, pGobj);
-		return lndID;
+		gobjsList.AddNode(lndName, pGobj);
+		return 1;
 	}
-	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpId);
-	return grpObj->AddLogicalAnd( lndID, params, szCText);
+	MulGObj *grpObj = (MulGObj *)gobjsList.GetHandle(grpName);
+	return grpObj->AddLogicalAnd( lndName, params, szCText);
 }
 
 /*********************************************************************
@@ -1014,31 +1067,152 @@ int SnglWObj::AddLogicalAnd(LONG grpId, LONG lndID, POINT *params, LPSTR szCText
 * Revision:
 * 2000-03-21 luci 1.0 New
 **********************************************************************/
-BOOL SnglWObj::TakeNextCmtS(LONG *gid, LONG *oid, LPSTR CommentStr)
+BOOL SnglWObj::TakeNextCmtS(char *gName, char *oName, LPSTR CommentStr)
 {
 	SnglGObj *pGObj;
-	if(*oid == -1)
-		pGObj = (SnglGObj *)gobjsList.GetNextClsPtr(gid);
+	if(oName[0] == '\0')
+		pGObj = (SnglGObj *)gobjsList.GetNextClsPtr(gName);
 	else
-		pGObj = (SnglGObj *)gobjsList.GetHandle(*gid);
-	return pGObj->TakeCmtS(gid, oid, CommentStr);
+		pGObj = (SnglGObj *)gobjsList.GetHandle(*gName);
+	return pGObj->TakeCmtS(gName, oName, CommentStr);
 }
 
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-09-06 luci 1.0 New
+**********************************************************************/
 void SnglWObj::MoveW(LONG offsetX, LONG offsetY)
 {
-//	WINDOWINFO wi;
+	RECT vRect;
+	GetWindowRect( m_clsWnd, &vRect);
+	MapWindowPoints(NULL, m_clsWnd, (POINT *)&vRect, 2);
+	MoveWindow(m_clsWnd, vRect.left+offsetX, vRect.top+offsetY,	vRect.right - vRect.left, vRect.bottom - vRect.top,	TRUE);
+}
+/*	POINT	stPoint;
+	RECT tmpr;
+		GetWindowRect(  m_clsWnd,      // handle to window
+			&tmpr   // address of structure for window coordinates
+			); 
 
-//	GetWindowInfo(m_clsWnd, &wi);
+		stPoint.x = tmpr.right - tmpr.left;
+		stPoint.y = tmpr.bottom - tmpr.top;
+		DPtoLP(hdcCldW, &stPoint, 1);
 
-//	SetWindowPos(m_clsWnd, NULL, wi.rcWindow.left + offsetX, wi.rcWindow.top+offsetY, wi.rcWindow.right-wi.rcWindow.left, wi.rcWindow.bottom-wi.rcWindow.top, SWP_NOZORDER);
+*/
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-09-15 luci 1.0 New
+**********************************************************************/
+BOOL SnglWObj::IsObject(char *objName)
+{
+	if(strcmp(m_WndName, objName) == 0)
+		return TRUE;
+	SnglGObj *pGObj;
+	Node *gNode = gobjsList.GetFirstItem();
+	while(gNode){
+		if( strcmp(gNode->strnID, objName) == 0)
+			return TRUE;
+		pGObj = (SnglGObj *) gNode->LpvCls;
+		if(pGObj->IsObject(objName))
+			return TRUE;
+		gNode = gobjsList.GetNextItem(gNode);
+	}
+	return FALSE;
 }
 
-// check read result
-void SnglWObj::CheckLoadResult(bool bFail, char*objName, int index)
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-09-28 luci 1.0 New
+**********************************************************************/
+BOOL SnglWObj::DeleteGObject(char *objName)
+{
+	SnglGObj *pGObj;
+	Node *gNode = gobjsList.GetFirstItem();
+	while(gNode){
+		pGObj = (SnglGObj *) gNode->LpvCls;
+		if( strcmp(gNode->strnID, objName) == 0){
+			gobjsList.DelItem( objName );
+			delete pGObj;
+			return TRUE;
+		}
+		if(pGObj->DeleteGObject(objName))
+			return TRUE;
+		gNode = gobjsList.GetNextItem(gNode);
+	}
+	return FALSE;
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-10-04 luci 1.0 New
+**********************************************************************/
+void SnglWObj::SetEditMode(UCHAR bEditMode)
+{
+	m_bEditMode = bEditMode;
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-10-05 luci 1.0 New
+**********************************************************************/
+BOOL SnglWObj::SelectWObj(UINT x, UINT y)
+{
+	SnglGObj *pGObj;
+	Node *gNode = gobjsList.GetLastItem();
+	while(gNode){
+		pGObj = (SnglGObj *) gNode->LpvCls;
+		if(pGObj->SelectGObject( x, y))
+			return TRUE;
+		gNode = gobjsList.GetPreviousItem(gNode);
+	}
+	return FALSE;
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-10-05 luci 1.0 New
+**********************************************************************/
+BOOL SnglWObj::GetSelectedObjInfo(void *objInfoStruct)
+{
+	SnglGObj *pGObj;
+	OBJINFO * pObjInf =(OBJINFO *)objInfoStruct;
+	Node *gNode = gobjsList.GetFirstItem();
+	while(gNode){
+		pGObj = (SnglGObj *) gNode->LpvCls;
+		if(pGObj->GetSelectedObjInfo(objInfoStruct))
+		{
+			if(!pObjInf->strOMName)
+				pObjInf->strOMName = m_WndName;
+			return TRUE;
+		}
+		gNode = gobjsList.GetNextItem(gNode);
+	}
+	return FALSE;
+}
+
+/*********************************************************************
+* Description: check read result
+*
+* Revision:
+* 2000-10-06 luci 1.0 New
+**********************************************************************/
+void SnglWObj::CheckLoadResult(bool bFail, char* objName, char* szCText)
 {
 	if(bFail){
 		char buff[100];
-		sprintf_s(buff, 100, "bad object %s %d", objName, index);
+		sprintf_s(buff, 100, "bad object %s %s\n", objName, szCText);
 		OutputDebugString(buff);
 	}
 }

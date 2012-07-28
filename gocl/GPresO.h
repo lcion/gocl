@@ -15,10 +15,11 @@
 class GPresO : public SnglGObj  
 {
 public:
-	BOOL Save(ofstream *dst, LONG nID);
+	BOOL GetSelectedObjInfo(void *objInfoStruct);
+	BOOL Save(ofstream *dst);
 	void Redraw(HDC memHdc);
 	void Create(POINT *data, LPSTR szCText);
-	GPresO(int ObjId);
+	GPresO(char *ObjName);
 	virtual ~GPresO();
 
 };

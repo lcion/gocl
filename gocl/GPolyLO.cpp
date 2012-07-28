@@ -14,7 +14,7 @@
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-GPolyLO::GPolyLO(int ObjId):SnglGObj(ObjId)
+GPolyLO::GPolyLO(char *ObjName):SnglGObj(ObjName)
 {
 	m_nofPct = 0;
 }
@@ -36,16 +36,15 @@ GPolyLO::~GPolyLO()
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-void GPolyLO::Create(POINT *pointst, int nofPt, LONG color, LPSTR szCText)
+void GPolyLO::Create(POINT *pointst, int nofPt)
 {
 	RECT orct;
-//	m_lGOColor = color;
-	m_vpobjData = (char*)malloc(sizeof(POINT)*nofPt);
+	m_vpobjData = (char*)new POINT[nofPt];
 	memcpy(m_vpobjData, pointst, sizeof(POINT)*nofPt);
 	m_nofPct = nofPt;
 	SetLimitis(&orct);
 
-	SnglGObj::Create(orct.left, orct.top, orct.right, orct.bottom, color, 0, szCText);
+	SnglGObj::Create(orct.left, orct.top, orct.right, orct.bottom, pointst[nofPt].x, 0, (LPSTR)pointst[nofPt].y);
 }
 
 /*********************************************************************
@@ -66,6 +65,7 @@ void GPolyLO::Redraw(HDC memHdc)
 
 	SelectObject(memHdc, oldPen);
 	DeleteObject(crtPen);
+	SnglGObj::Redraw(memHdc);
 }
 
 /*********************************************************************
@@ -111,12 +111,23 @@ int GPolyLO::Move(HWND hWnd, POINT mhlPoint)
 * Revision:
 * 2000-03-02 luci 1.0 New
 **********************************************************************/
-BOOL GPolyLO::Save(ofstream *dst, LONG nID)
+BOOL GPolyLO::Save(ofstream *dst)
 {
 	POINT *pPoliPct = (POINT *)m_vpobjData;
-	*dst << "POL " <<nID<<" "<< m_nofPct << " ";
+	*dst << "POL " << m_GOName <<" "<< m_nofPct << " ";
 	for(int i = 0; i < m_nofPct; i++)
 		*dst << pPoliPct[i].x << " " << pPoliPct[i].y << " ";
 	*dst <<	m_lGOColor ;
-	return SnglGObj::Save(dst, nID);
+	return SnglGObj::Save(dst);
+}
+
+BOOL GPolyLO::GetSelectedObjInfo(void *objInfoStruct)
+{
+	if(!SnglGObj::GetSelectedObjInfo(objInfoStruct))
+		return FALSE;
+	OBJINFO *pObjInfo = (OBJINFO *)objInfoStruct;
+	pObjInfo->objType = POLYLID;
+	pObjInfo->dNoOfPoints = m_nofPct;
+	pObjInfo->vpObjData = m_vpobjData;
+	return TRUE;
 }

@@ -14,13 +14,14 @@
 class GPolyLO : public SnglGObj
 {
 public:
-	BOOL Save(ofstream *dst, LONG nID);
+	BOOL GetSelectedObjInfo(void *objInfoStruct);
+	BOOL Save(ofstream *dst);
 	int Move(HWND hWnd, POINT mhlPoint);
 	void SetLimitis(RECT *pRect);
 	void Redraw(HDC memHdc);
-	void Create(POINT *pointst, int nofPt, LONG color, LPSTR szCText);
+	void Create(POINT *pointst, int nofPt);
 	int m_nofPct;
-	GPolyLO(int ObjId);
+	GPolyLO(char *ObjName);
 	virtual ~GPolyLO();
 
 };

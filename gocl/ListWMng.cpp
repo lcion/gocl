@@ -2,6 +2,11 @@
 *	 Description: implementation of the ListWMng class.
 *
 *	Functions:
+*		ListWMng::GetSelectedObjInfo
+*		ListWMng::IsObject
+*		ListWMng::MoveClientW
+*		ListWMng::TakeNextCommentStr
+*		ListWMng::ChangeTxt
 *		ListWMng::LoadAllObjects
 *		ListWMng::SaveAllObjects
 *		ListWMng::GobjChgColors
@@ -19,7 +24,7 @@
 *		ListWMng::SetBounds
 *		ListWMng::SetBackgroundColor
 *		ListWMng::Refresh
-*		ListWMng::CloseView
+*		ListWMng::DeleteGObject
 *		ListWMng::AddText
 *		ListWMng::AddView
 *		ListWMng::ListWMng
@@ -61,16 +66,14 @@ ListWMng::~ListWMng()
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG ListWMng::AddView(LONG wID, HWND hwndParent)
+LONG ListWMng::AddView(char *wName, HWND hwndParent)
 {
 	m_hparentW = hwndParent;
 
-	if(SWOlist.CheckNewID(wID) == -1)
-		return -1;
-	SnglWObj *newWobj = new SnglWObj(hwndParent);
+	SnglWObj *newWobj = new SnglWObj(hwndParent, wName);
 	newWobj->Create(m_hAppInst, 0, 0x00ffffff);
-	SWOlist.AddNode(wID, newWobj);
-	return wID;
+	SWOlist.AddNode(wName, newWobj);
+	return TRUE;
 }
 
 /*********************************************************************
@@ -78,13 +81,13 @@ LONG ListWMng::AddView(LONG wID, HWND hwndParent)
 *   
 * Revision:
 * 2000-02-23 luci 1.0 New
-**********************************************************************/
-LONG ListWMng::AddText(LONG tWndId, LONG grpId, LONG txtID, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText)
+*********************************************************************/
+LONG ListWMng::AddText(char *szOMName, char *txtName, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( tWndId );
+	SnglWObj *pSnglWObj = (SnglWObj *)GetWObjByOMName(szOMName);//(SnglWObj *) SWOlist.GetHandle( twndName );
 	if(IsWindow(pSnglWObj->m_clsWnd))
 	{
-		return pSnglWObj->AddText(grpId, txtID, szText, x, y, color, bcolor, szCText);
+		return pSnglWObj->AddText(szOMName, txtName, szText, x, y, color, bcolor, szCText);
 	}
 	else
 		return -1;
@@ -96,17 +99,30 @@ LONG ListWMng::AddText(LONG tWndId, LONG grpId, LONG txtID, LPSTR szText, LONG x
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL ListWMng::CloseView(LONG hidx)
+BOOL ListWMng::DeleteGObject(char *objName)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( hidx );
+/*	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( objName );
 	if(pSnglWObj && IsWindow(pSnglWObj->m_clsWnd))
 	{
-		SWOlist.DelItem( hidx );
-		delete pSnglWObj;
-		return 1;
+		if(SWOlist.DelItem( objName )){
+			delete pSnglWObj;
+			return 1;
+		}
+	}*/
+	SnglWObj *pSnglWObj;
+	Node *wNode = SWOlist.GetFirstItem();
+	while(wNode){
+		pSnglWObj = (SnglWObj *) wNode->LpvCls;
+		if( strcmp(wNode->strnID, objName) == 0){//window
+			SWOlist.DelItem( objName );
+			delete pSnglWObj;
+			return TRUE;
+		}
+		if(pSnglWObj->DeleteGObject(objName))
+			return TRUE;
+		wNode = SWOlist.GetNextItem(wNode);
 	}
-	else
-		return 0;
+	return FALSE;
 }
 
 /*********************************************************************
@@ -115,10 +131,10 @@ BOOL ListWMng::CloseView(LONG hidx)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL ListWMng::Refresh(LONG hidx)
+BOOL ListWMng::Refresh(char *wndName)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( hidx );
-	if(IsWindow(pSnglWObj->m_clsWnd))
+	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wndName );
+	if(pSnglWObj && IsWindow(pSnglWObj->m_clsWnd))
 	{
 		pSnglWObj->ComputeBkgnd();
 		return 1;
@@ -133,9 +149,9 @@ BOOL ListWMng::Refresh(LONG hidx)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-WORD ListWMng::SetBackgroundColor(LONG hidx, LONG color)
+WORD ListWMng::SetBackgroundColor(char *wndName, LONG color)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( hidx );
+	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wndName );
 	if(IsWindow(pSnglWObj->m_clsWnd))
 	{
 		pSnglWObj->SetBackgroundColor(color);
@@ -151,9 +167,9 @@ WORD ListWMng::SetBackgroundColor(LONG hidx, LONG color)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL ListWMng::SetBounds(LONG hidx, LONG x, LONG y, LONG width, LONG height)
+BOOL ListWMng::SetBounds(char *wndName, LONG x, LONG y, LONG width, LONG height)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( hidx );
+	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wndName );
 	if(IsWindow(pSnglWObj->m_clsWnd))
 	{
 		pSnglWObj->SetBounds(x,  y,  width,  height);
@@ -169,9 +185,9 @@ BOOL ListWMng::SetBounds(LONG hidx, LONG x, LONG y, LONG width, LONG height)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL ListWMng::SetVisible(LONG hidx, BOOL visible)
+BOOL ListWMng::SetVisible(char *wndName, BOOL visible)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( hidx );
+	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wndName );
 	if(IsWindow(pSnglWObj->m_clsWnd))
 	{
 		pSnglWObj->SetVisible( visible );
@@ -198,12 +214,12 @@ void ListWMng::SethInst(HINSTANCE hInstance)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL ListWMng::SetTextFont(LONG wndId, LONG grpId, LONG txtoId, LPSTR fName, int fsize, int fattrib)
+BOOL ListWMng::SetTextFont(char *szOMName, char *txtoName, LPSTR fName, int fsize, int fattrib)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wndId );
+	SnglWObj *pSnglWObj = (SnglWObj *) GetWObjByOMName(szOMName);
 	if(IsWindow(pSnglWObj->m_clsWnd))
 	{
-		pSnglWObj->SetTextFont(grpId, txtoId, fName, fsize, fattrib);
+		pSnglWObj->SetTextFont(szOMName, txtoName, fName, fsize, fattrib);
 		return 1;
 	}
 	else
@@ -217,12 +233,12 @@ BOOL ListWMng::SetTextFont(LONG wndId, LONG grpId, LONG txtoId, LPSTR fName, int
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL ListWMng::GobjMoveTo(LONG wndId, LONG grpId, LONG txtoId, POINT point)
+BOOL ListWMng::GobjMoveTo(char *wndName, char *grpName, char *txtoName, POINT point)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wndId );
+	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wndName );
 	if(IsWindow(pSnglWObj->m_clsWnd))
 	{
-		return pSnglWObj->MoveTo(grpId, txtoId, point);
+		return pSnglWObj->MoveTo(grpName, txtoName, point);
 	}
 	else
 		return 0;
@@ -234,12 +250,12 @@ BOOL ListWMng::GobjMoveTo(LONG wndId, LONG grpId, LONG txtoId, POINT point)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL ListWMng::GobjMove(LONG wndId, LONG grpId, LONG txtoId, POINT point)
+BOOL ListWMng::GobjMove(char *szOMName, char *goName, POINT point)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wndId );
-	if(IsWindow(pSnglWObj->m_clsWnd))
+	SnglWObj *pSnglWObj = (SnglWObj *) GetWObjByOMName( szOMName );
+	if(pSnglWObj && IsWindow(pSnglWObj->m_clsWnd))
 	{
-		return pSnglWObj->Move(grpId, txtoId, point);
+		return pSnglWObj->Move(szOMName, goName, point);
 	}
 	else
 		return 0;
@@ -251,12 +267,12 @@ BOOL ListWMng::GobjMove(LONG wndId, LONG grpId, LONG txtoId, POINT point)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-int ListWMng::AddBox(LONG wID, LONG grpId, LONG boxID, POINT *params)
+int ListWMng::AddBox(char *szOMName, char *boxName, POINT *params)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wID );
-	if(IsWindow(pSnglWObj->m_clsWnd))
+	SnglWObj *pSnglWObj = (SnglWObj *) GetWObjByOMName(szOMName);
+	if(pSnglWObj && IsWindow(pSnglWObj->m_clsWnd))
 	{
-		return pSnglWObj->AddBox(grpId, boxID, params);
+		return pSnglWObj->AddBox(szOMName, boxName, params);
 	}
 	else
 		return -1;
@@ -268,12 +284,12 @@ int ListWMng::AddBox(LONG wID, LONG grpId, LONG boxID, POINT *params)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG ListWMng::AddCircle(LONG wID, LONG grpId, LONG cirID, POINT *pointst)
+LONG ListWMng::AddCircle(char *szOMName, char *cirName, POINT *pointst)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wID );
-	if(IsWindow(pSnglWObj->m_clsWnd))
+	SnglWObj *pSnglWObj = (SnglWObj *) GetWObjByOMName(szOMName);
+	if(pSnglWObj && IsWindow(pSnglWObj->m_clsWnd))
 	{
-		return pSnglWObj->AddCircle(grpId, cirID, pointst);
+		return pSnglWObj->AddCircle(szOMName, cirName, pointst);
 	}
 	else
 		return -1;
@@ -285,12 +301,12 @@ LONG ListWMng::AddCircle(LONG wID, LONG grpId, LONG cirID, POINT *pointst)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG ListWMng::AddPolygon(LONG wID, LONG grpId, LONG pgID, POINT *pointArray, int nofpct) //, LONG color, LONG bcolor, LPSTR szCText
+LONG ListWMng::AddPolygon(char *szOMName, char *pgName, POINT *pointArray, int nofpct)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wID );
-	if(IsWindow(pSnglWObj->m_clsWnd))
+	SnglWObj *pSnglWObj = (SnglWObj *) GetWObjByOMName(szOMName);
+	if(pSnglWObj && IsWindow(pSnglWObj->m_clsWnd))
 	{
-		return pSnglWObj->AddPolygon(grpId, pgID, pointArray, nofpct); //, color, bcolor, szCText
+		return pSnglWObj->AddPolygon(szOMName, pgName, pointArray, nofpct); //, color, bcolor, szCText
 	}
 	else
 		return -1;
@@ -303,12 +319,12 @@ LONG ListWMng::AddPolygon(LONG wID, LONG grpId, LONG pgID, POINT *pointArray, in
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG ListWMng::AddGroup(LONG wID, LONG gID)
+LONG ListWMng::AddGroup(char *wName, char *gName)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wID );
+	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wName );
 	if(IsWindow(pSnglWObj->m_clsWnd))
 	{
-		return pSnglWObj->AddGroup(gID);
+		return pSnglWObj->AddGroup("", gName);
 	}
 	else
 		return -1;
@@ -320,12 +336,12 @@ LONG ListWMng::AddGroup(LONG wID, LONG gID)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG ListWMng::AddPolyLine(LONG wID, LONG grpId, LONG plID, POINT *pointArray, int nofpct, LONG color, LPSTR szCText)
+LONG ListWMng::AddPolyLine(char *szOMName, char *plName, POINT *pointArray, int nofpct)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wID );
-	if(IsWindow(pSnglWObj->m_clsWnd))
+	SnglWObj *pSnglWObj = (SnglWObj *) GetWObjByOMName(szOMName);
+	if(pSnglWObj && IsWindow(pSnglWObj->m_clsWnd))
 	{
-		return pSnglWObj->AddPolyLine(grpId, plID, pointArray, nofpct, color, szCText);
+		return pSnglWObj->AddPolyLine(szOMName, plName, pointArray, nofpct);
 	}
 	else
 		return -1;
@@ -337,12 +353,12 @@ LONG ListWMng::AddPolyLine(LONG wID, LONG grpId, LONG plID, POINT *pointArray, i
 * Revision:
 * 2000-03-03 luci 1.0 New
 **********************************************************************/
-LONG ListWMng::GobjChgColors(LONG wID, LONG grpId, LONG objID, LONG bcolor, LONG color)
+LONG ListWMng::GobjChgColors(char* wndName, char *grpName, char *objName, LONG bcolor, LONG color)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wID );
+	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wndName );
 	if(IsWindow(pSnglWObj->m_clsWnd))
 	{
-		return pSnglWObj->GobjChgColors(grpId, objID, bcolor, color);
+		return pSnglWObj->GobjChgColors(grpName, objName, bcolor, color);
 	}
 	else
 		return 0;
@@ -357,11 +373,11 @@ LONG ListWMng::GobjChgColors(LONG wID, LONG grpId, LONG objID, LONG bcolor, LONG
 BOOL ListWMng::SaveAllObjects(ofstream *dst)
 {
 	Node *pListItem = SWOlist.GetFirstItem();
-	int retval=1;
+	int retval = 1;
 	while(pListItem != NULL)
 	{
 		SnglWObj *pGObj = (SnglWObj *)pListItem->LpvCls;
-		pGObj->SaveWindowObjects(dst, pListItem->nID);
+		pGObj->SaveWindowObjects(dst);
 		pListItem = pListItem->next;
 	}
 	return retval;
@@ -380,25 +396,27 @@ BOOL ListWMng::LoadAllObjects(ifstream *src, HWND hparentWnd)
 	*src >> readBuf;
 	while(strcmp(readBuf, "BWND") == 0)
 	{
-		LONG x, y, width, hight, bkcolor, wID;
-		*src >> wID;//x
+		LONG x, y, width, hight, bkcolor;
+		char szWName[30];//, *pWName;
+		*src >> szWName;//windows Name
 		*src >> x;//x
 		*src >> y;//y
 		*src >> width;//long
 		*src >> hight;//hight
 		*src >> bkcolor;//color
-		if(AddView(wID, m_hparentW) == -1) // the ID is not free
+		LONG objID = AddView(szWName, m_hparentW);
+		if( objID == -1) // the ID is not deleted
 			return false;
-		SetBounds(wID , x , y, width, hight);
-		SetBackgroundColor(wID, bkcolor);
-		SetVisible(wID, 1);
-		SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wID );
+		SetBounds(szWName , x , y, width, hight);
+		SetBackgroundColor(szWName, bkcolor);
+		SetVisible(szWName, 1);
+		SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( objID );
 		pSnglWObj->LoadWindowObjects(src, readBuf);
-		Refresh(wID);
+		Refresh(szWName);
 		*src >> readBuf;
 	}
 	if(strcmp(readBuf, "NULL_IMPUT_FILE"))
-	return TRUE;
+		return TRUE;
 	return FALSE;
 }
 
@@ -408,12 +426,12 @@ BOOL ListWMng::LoadAllObjects(ifstream *src, HWND hparentWnd)
 * Revision:
 * 2000-03-21 luci 1.0 New
 **********************************************************************/
-BOOL ListWMng::ChangeTxt(LONG wndId, LONG grpId, LONG txtoId, LPSTR szText)
+BOOL ListWMng::ChangeTxt(char *wndName, char *grpName, char *txtoName, LPSTR szText)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wndId );
+	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wndName );
 	if(IsWindow(pSnglWObj->m_clsWnd))
 	{
-		pSnglWObj->ChangeTxt(grpId, txtoId, szText);
+		pSnglWObj->ChangeTxt(grpName, txtoName, szText);
 		return 1;
 	}
 	else
@@ -426,19 +444,25 @@ BOOL ListWMng::ChangeTxt(LONG wndId, LONG grpId, LONG txtoId, LPSTR szText)
 * Revision:
 * 2000-03-21 luci 1.0 New
 **********************************************************************/
-BOOL ListWMng::TakeNextCommentStr(LONG *wid, LONG *grid, LONG *oid, LPSTR CommentStr)
+BOOL ListWMng::TakeNextCommentStr(char *wndName, char *grName, char *oName, LPSTR CommentStr)
 {
 	SnglWObj *pGObj;
-	if(*oid == -1)
-		pGObj = (SnglWObj *)SWOlist.GetNextClsPtr(wid);
+	if(oName[0] == '\0')
+		pGObj = (SnglWObj *)SWOlist.GetNextClsPtr(wndName);
 	else
-		pGObj = (SnglWObj *)SWOlist.GetHandle(*wid);
-	return pGObj->TakeNextCmtS(grid, oid, CommentStr);
+		pGObj = (SnglWObj *)SWOlist.GetHandle(*wndName);
+	return pGObj->TakeNextCmtS(grName, oName, CommentStr);
 }
 
-BOOL ListWMng::MoveClientW(LONG wid, LONG x, LONG y)
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-09-14 luci 1.0 New
+**********************************************************************/
+BOOL ListWMng::MoveClientW(char *wndName, LONG x, LONG y)
 {
-	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wid );
+	SnglWObj *pSnglWObj = (SnglWObj *) SWOlist.GetHandle( wndName );
 	if(IsWindow(pSnglWObj->m_clsWnd))
 	{
 		pSnglWObj->MoveW(x, y);
@@ -446,4 +470,151 @@ BOOL ListWMng::MoveClientW(LONG wid, LONG x, LONG y)
 	}
 	else
 		return 0;
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-09-14 luci 1.0 New
+**********************************************************************/
+BOOL ListWMng::IsObject(char *objName){
+	SnglWObj *pGObj;
+	Node *wNode = SWOlist.GetFirstItem();
+	while(wNode){
+		if( strcmp(wNode->strnID, objName) == 0)
+			return TRUE;
+		pGObj = (SnglWObj *) wNode->LpvCls;
+		if(pGObj->IsObject(objName))
+			return TRUE;
+		wNode = SWOlist.GetNextItem(wNode);
+	}
+	return FALSE;
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-09-26 luci 1.0 New
+**********************************************************************/
+void * ListWMng::GetWObjByOMName(char *szOMName)
+{
+	SnglWObj *pGObj;
+	Node *wNode = SWOlist.GetFirstItem();
+	while(wNode){
+		if( strcmp(wNode->strnID, szOMName) == 0)
+			return wNode->LpvCls;
+		pGObj = (SnglWObj *) wNode->LpvCls;
+		if(pGObj->IsObject(szOMName))
+			return wNode->LpvCls;
+		wNode = SWOlist.GetNextItem(wNode);
+	}
+	return NULL;
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-09-26 luci 1.0 New
+**********************************************************************/
+BOOL ListWMng::AddTube(char *szOMName, char *tubName, POINT *data, LPSTR szCText)
+{
+	SnglWObj *pSnglWObj = (SnglWObj *)GetWObjByOMName(szOMName);//(SnglWObj *) SWOlist.GetHandle( twndName );
+	if(pSnglWObj && IsWindow(pSnglWObj->m_clsWnd))
+	{
+		return pSnglWObj->AddTub(szOMName, tubName, data, szCText);
+	}
+	else
+		return -1;
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-09-26 luci 1.0 New
+**********************************************************************/
+BOOL ListWMng::AddPress(char *szOMName, char *presName, POINT *data, LPSTR szCText)
+{
+	SnglWObj *pSnglWObj = (SnglWObj *)GetWObjByOMName(szOMName);//(SnglWObj *) SWOlist.GetHandle( twndName );
+	if(pSnglWObj && IsWindow(pSnglWObj->m_clsWnd))
+	{
+		return pSnglWObj->AddPress(szOMName, presName, data, szCText);
+	}
+	else
+		return -1;
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-09-26 luci 1.0 New
+**********************************************************************/
+BOOL ListWMng::AddLogicalAnd(char *szOMName, char *lndName, POINT *params, LPSTR szCText)
+{
+	SnglWObj *pSnglWObj = (SnglWObj *)GetWObjByOMName(szOMName);//(SnglWObj *) SWOlist.GetHandle( twndName );
+	if(pSnglWObj && IsWindow(pSnglWObj->m_clsWnd))
+	{
+		return pSnglWObj->AddLogicalAnd(szOMName, lndName, params, szCText);
+	}
+	else
+		return -1;
+
+}
+
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-10-04 luci 1.0 New
+**********************************************************************/
+BOOL ListWMng::AddMold(char *szOMName, char *moldName, POINT *data, LPSTR szCText)
+{
+	SnglWObj *pSnglWObj = (SnglWObj *)GetWObjByOMName(szOMName);//(SnglWObj *) SWOlist.GetHandle( twndName );
+	if(pSnglWObj && IsWindow(pSnglWObj->m_clsWnd))
+	{
+		return pSnglWObj->AddMold(szOMName, moldName, data, szCText);
+	}
+	else
+		return -1;
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-10-05 luci 1.0 New
+**********************************************************************/
+void ListWMng::SetEditMode(UCHAR bEditMode)
+{
+	SnglWObj *pGObj;
+	Node *wNode = SWOlist.GetFirstItem();
+	while(wNode){
+		pGObj = (SnglWObj *) wNode->LpvCls;
+		pGObj->SetEditMode(bEditMode);
+		wNode = SWOlist.GetNextItem(wNode);
+	}
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-10-06 luci 1.0 New
+**********************************************************************/
+BOOL ListWMng::GetSelectedObjInfo(void *objInfoStruct)
+{
+	SnglWObj *pGObj;
+	Node *wNode = SWOlist.GetFirstItem();
+	while(wNode){
+		pGObj = (SnglWObj *) wNode->LpvCls;
+		if(pGObj->GetSelectedObjInfo(objInfoStruct))
+			return TRUE;
+		wNode = SWOlist.GetNextItem(wNode);
+	}
+	return FALSE;
 }

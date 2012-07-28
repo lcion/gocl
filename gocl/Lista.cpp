@@ -1,6 +1,27 @@
-// Lista.cpp: implementation of the Lista class.
-//
-//////////////////////////////////////////////////////////////////////
+/* Lista.cpp *******************************************************
+*	 Description: implementation of the Lista class
+*
+*	Functions:
+*		Lista::Lista
+*		Lista::~Lista
+*		Lista::InitLst
+*		Lista::AddNode
+*		Lista::DelList
+*		Lista::Count
+*		Lista::GetNewID
+*		Lista::GetHandle
+*		Lista::DelItem
+*		Lista::GetFirstItem
+*		Lista::GetNextItem
+*		Lista::CheckNewID
+*		Lista::GetNextClsPtr
+*		Lista::GetNextClsPtr
+*		Lista::GetPreviousItem
+*		
+*		
+*	Revision:
+*		2000-10-05 luci 1.0 New
+**********************************************************************/
 
 #include "Lista.h"
 
@@ -9,12 +30,8 @@
 static char THIS_FILE[]=__FILE__;
 #endif
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
 /*********************************************************************
-* Description:
+* Description: Construction
 *   
 * Revision:
 * 2000-02-23 luci 1.0 New
@@ -24,7 +41,7 @@ Lista::Lista(){
 }
 
 /*********************************************************************
-* Description:
+* Description:Destruction
 *   
 * Revision:
 * 2000-02-23 luci 1.0 New
@@ -72,8 +89,32 @@ void Lista::AddNode(int cds, LPVOID lpvCls){
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
+void Lista::AddNode(char *cds, LPVOID lpvCls){
+	Node *pnNod;
+	Node *tmp;
+	pnNod = new Node;
+	pnNod->LpvCls = lpvCls;
+//	pnNod->nID = cds;
+	pnNod->strnID = new char[strlen(cds)+1];
+	strcpy_s(pnNod->strnID, strlen(cds)+1, cds);
+	if(head == NULL){
+		head = pnNod;
+		return;
+	}
+	for(tmp = head; tmp->next != NULL; tmp = tmp->next);
+	tmp->next = pnNod;
+}
+//Lista::AddNode
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-02-23 luci 1.0 New
+**********************************************************************/
 void Lista::DelList(Node *sblist){
 	if(sblist->next) DelList(sblist->next);
+	delete sblist->strnID;
 	delete sblist;
 }
 
@@ -176,6 +217,36 @@ int Lista::DelItem(LONG hidx)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
+int Lista::DelItem(char *itemName)
+{
+	Node *tmp, *tmp1;
+
+	for(tmp1 = tmp = head; tmp->next != NULL && strcmp(tmp->strnID, itemName) != 0; tmp = tmp->next)tmp1 = tmp;
+	if(strcmp(tmp->strnID, itemName) == 0)
+	{
+		if(tmp == head)
+		{
+			head = head->next;
+			delete tmp->strnID;
+			delete tmp;
+		}
+		else
+		{
+			tmp1->next = tmp->next;
+			delete tmp->strnID;
+			delete tmp;
+		}
+	return 1;
+	}
+	return 0;
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-02-23 luci 1.0 New
+**********************************************************************/
 Node * Lista::GetFirstItem()
 {
 	if(head)
@@ -214,6 +285,12 @@ LONG Lista::CheckNewID(LONG wID)
 		return -1;
 }
 
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-10-05 luci 1.0 New
+**********************************************************************/
 void * Lista::GetNextClsPtr(LONG *nID)
 {
 	if(head==NULL)
@@ -235,4 +312,62 @@ void * Lista::GetNextClsPtr(LONG *nID)
 		*nID = -1;
 		return NULL;
 	}
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-10-05 luci 1.0 New
+**********************************************************************/
+void * Lista::GetNextClsPtr(char *nName)
+{
+	if(head==NULL)
+		return NULL;
+	if(nName[0] == '\0')
+	{
+		strcpy_s(nName, CMNT_BUFF, head->strnID);
+		return head->LpvCls;
+	}
+	Node *tmp;
+	for(tmp = head; tmp->next != NULL && strcmp(tmp->strnID, nName) !=0 ; tmp = tmp->next);
+	if(strcmp(tmp->strnID, nName) ==0  && tmp->next)
+	{
+		strcpy_s(nName, CMNT_BUFF, tmp->next->strnID);
+		return tmp->next->LpvCls;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-10-05 luci 1.0 New
+**********************************************************************/
+Node *Lista::GetLastItem()
+{
+	if(head==NULL)
+		return NULL;
+	Node *tmp;
+	for(tmp = head; tmp->next != NULL ; tmp = tmp->next);
+	return tmp;
+}
+
+/*********************************************************************
+* Description:
+*   
+* Revision:
+* 2000-10-05 luci 1.0 New
+**********************************************************************/
+Node * Lista::GetPreviousItem(Node *crtItem)
+{
+	if(head == crtItem || head == NULL)
+		return NULL;
+	Node *tmp;
+	for(tmp = head; tmp->next != NULL && tmp->next != crtItem; tmp = tmp->next);
+	return tmp;
 }

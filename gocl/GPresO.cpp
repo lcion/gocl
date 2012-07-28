@@ -8,7 +8,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-GPresO::GPresO(int ObjId):SnglGObj(ObjId)
+GPresO::GPresO(char *ObjName):SnglGObj(ObjName)
 {
 
 }
@@ -20,16 +20,9 @@ GPresO::~GPresO()
 
 void GPresO::Create(POINT *data, LPSTR szCText)
 {
-/*	m_lGOColor = data[3].x;
-	m_lGOBkndCol = data[3].y;*/
-	m_vpobjData = (char *)malloc(sizeof(LONG));
+	m_vpobjData = (char *)new LONG;
 	LONG *thick = (LONG*)m_vpobjData;
 	*thick = data[0].x;
-	/*
-	m_objRect.left = data[1].x;
-	m_objRect.top = data[1].y;
-	m_objRect.right = data[2].x;
-	m_objRect.bottom = data[2].y;*/
 	SnglGObj::Create(data[1].x, data[1].y, data[2].x, data[2].y, data[3].x, data[3].y, szCText);
 
 }
@@ -69,7 +62,7 @@ void GPresO::Redraw(HDC memHdc)
 		x0 = m_objRect.left + r;
 		y = m_objRect.top + lpn;
 		y0 = r - lpn;
-		x = (LONG)(sqrt((double)(r*r - y0*y0)) + x0);
+		x =  (LONG)sqrt(double(r*r - y0*y0)) + x0;
 		MoveToEx( memHdc, x, y, NULL );
 		x = x - x0;
 		x0 = m_objRect.right - r;
@@ -97,13 +90,24 @@ void GPresO::Redraw(HDC memHdc)
 	DeleteObject(crtPen);
 	SelectObject(memHdc, oldBrush);
 	DeleteObject(crtBrush);
+	SnglGObj::Redraw(memHdc);
 }
 
-BOOL GPresO::Save(ofstream *dst, LONG nID)
+BOOL GPresO::Save(ofstream *dst)
 {
 	LONG *redu = (LONG*)m_vpobjData;
-	*dst << "PRS " << nID <<" "<< *redu << " " << m_objRect.left << " "
+	*dst << "PRS " << m_GOName <<" "<< *redu << " " << m_objRect.left << " "
 		<< m_objRect.top << " " << m_objRect.right << " "
 		<< m_objRect.bottom << " " << m_lGOColor << " " << m_lGOBkndCol ;
-	return SnglGObj::Save(dst, nID);
+	return SnglGObj::Save(dst);
+}
+
+BOOL GPresO::GetSelectedObjInfo(void *objInfoStruct)
+{
+	if(!SnglGObj::GetSelectedObjInfo(objInfoStruct))
+		return FALSE;
+	OBJINFO *pObjInfo = (OBJINFO *)objInfoStruct;
+	pObjInfo->objType = PRESID;
+	pObjInfo->vpObjData = m_vpobjData;
+	return TRUE;
 }

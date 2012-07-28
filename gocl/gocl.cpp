@@ -5,7 +5,7 @@
 *	GOCL_SetBounds
 *	GOCL_SetVisible
 *	GOCL_GobjChgColors
-*	GOCL_CloseView
+*	GOCL_DeleteGObject
 *	GOCL_SetBackgroundColor
 *	GOCL_Refresh
 *	GOCL_AddGroup
@@ -53,13 +53,13 @@ BOOL APIENTRY DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 /*********************************************************************
 * Description:
 *   Call the windows manager class with command:
-*	Add a window with wID to the parent window
+*	Add a window with wndName to the parent window
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG APIENTRY GOCL_AddView(LONG wID, HWND hwndParent)
+LONG APIENTRY GOCL_AddView(char *wName, HWND hwndParent)
 {
-	return listWMngi.AddView(wID, hwndParent);
+	return listWMngi.AddView(wName, hwndParent);
 }
 
 
@@ -67,13 +67,26 @@ LONG APIENTRY GOCL_AddView(LONG wID, HWND hwndParent)
 * Description:
 *   Call the windows manager class with command:
 *   Set the window dimensions and position
-*	The window manager identify the window by "hidx" identifier
+*	The window manager identify the window by "wndName" identifier
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL APIENTRY GOCL_SetBounds(LONG hidx, LONG x, LONG y, LONG width, LONG height)
+BOOL APIENTRY GOCL_SetBounds(char *wndName, LONG x, LONG y, LONG length, LONG height)
 {
-	return listWMngi.SetBounds(hidx, x, y, width, height);
+	return listWMngi.SetBounds(wndName, x, y, length, height);
+}
+
+/*********************************************************************
+* Description:
+*   Call the windows manager class with command:
+*   Set Edit working Mode for all windows
+*	
+* Revision:
+* 2000-10-05 luci 1.0 New
+**********************************************************************/
+void APIENTRY GOCL_SetEditMode(UCHAR bEditMode)
+{
+	listWMngi.SetEditMode(bEditMode);
 }
 
 /*********************************************************************
@@ -83,9 +96,9 @@ BOOL APIENTRY GOCL_SetBounds(LONG hidx, LONG x, LONG y, LONG width, LONG height)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL APIENTRY GOCL_SetVisible(LONG hidx, BOOL visible)
+BOOL APIENTRY GOCL_SetVisible(char *wndName, BOOL visible)
 {
-	return listWMngi.SetVisible(hidx, visible);
+	return listWMngi.SetVisible(wndName, visible);
 }
 
 /*********************************************************************
@@ -96,40 +109,40 @@ BOOL APIENTRY GOCL_SetVisible(LONG hidx, BOOL visible)
 *		1. Window ID
 *		2. Group ID
 *		3. Object ID
-*	If the object do not have a group then grpid = -1
+*	If the object do not have a group then grpName = -1
 *	If we want to set colors for the entire group then we
-*	call this function with objID = -1
+*	call this function with objName = -1
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG APIENTRY GOCL_GobjChgColors(LONG wID, LONG grpId, LONG objID, LONG bcolor, LONG color)
+LONG APIENTRY GOCL_GobjChgColors(char *wndName, char *grpName, char *objName, LONG bcolor, LONG color)
 {
-	return listWMngi.GobjChgColors(wID, grpId, objID, bcolor, color);
+	return listWMngi.GobjChgColors(wndName, grpName, objName, bcolor, color);
 }
 
 /*********************************************************************
 * Description:
 *   Call the windows manager class with command:
-*	Destroy window specified by hidx
+*	Destroy window specified by wndName
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL APIENTRY GOCL_CloseView(LONG hidx)
+BOOL APIENTRY GOCL_DeleteGObject(char *objName)
 {
-		return listWMngi.CloseView(hidx);
+		return listWMngi.DeleteGObject(objName);
 }
 
 /*********************************************************************
 * Description:
 *   Call the windows manager class with command:
-*	Set the window, identified by hidx ,background color to the color
+*	Set the window, identified by wndName ,background color to the color
 *		value.
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-WORD APIENTRY GOCL_SetBackgroundColor(LONG hidx, LONG color)
+WORD APIENTRY GOCL_SetBackgroundColor(char *wndName, LONG color)
 {
-	return listWMngi.SetBackgroundColor(hidx, color);
+	return listWMngi.SetBackgroundColor(wndName, color);
 }
 
 /*********************************************************************
@@ -140,9 +153,9 @@ WORD APIENTRY GOCL_SetBackgroundColor(LONG hidx, LONG color)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL APIENTRY GOCL_Refresh(LONG hidx)
+BOOL APIENTRY GOCL_Refresh(char *wndName)
 {
-	return listWMngi.Refresh(hidx);
+	return listWMngi.Refresh(wndName);
 }
 
 /*********************************************************************
@@ -154,26 +167,91 @@ BOOL APIENTRY GOCL_Refresh(LONG hidx)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG APIENTRY GOCL_AddGroup(LONG wndId, LONG gID)
+LONG APIENTRY GOCL_AddGroup(char *wndName, char *gName)
 {
-	return listWMngi.AddGroup(wndId, gID);
+	return listWMngi.AddGroup(wndName, gName);
 }
 
 /*********************************************************************
 * Description:
 *   Call the windows manager class with command:
-*   Add a text object to the group specified by grpId from wind
+*   Add a text object to the group specified by grpName from wind
 *	The text graphical object is ientified by:
-*		wndid  - window identifier
-*		grpId  - group identifier
+*		wndName  - window identifier
+*		grpName  - group identifier
 *		txtoID - graphical object identifier
-*	The grpId can be -1 => a free object in the window
+*	The grpName can be -1 => a free object in the window
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG APIENTRY GOCL_AddText(LONG wndId, LONG grpId, LONG txtID, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText)
+LONG APIENTRY GOCL_AddText(char *szOMName, char *txtName, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText)
 {
-	return listWMngi.AddText(wndId, grpId, txtID, szText, x, y, color, bcolor, szCText);
+	return listWMngi.AddText(szOMName, txtName, szText, x, y, color, bcolor, szCText);
+}
+
+/*********************************************************************
+* Description:
+*   Call the windows manager class with command:
+*   Add a Tube object to the group specified by szOMName from wind
+*	The Tube graphical object is ientified by:
+*		szOMName  - Tube group Name
+*		tubeName - graphical object name
+*	The szOMName can't be null or empty
+* Revision:
+* 2000-09-26 luci 1.0 New
+**********************************************************************/
+LONG APIENTRY GOCL_AddTube(char *szOMName, char *tubeName, POINT *data, LPSTR szCText)
+{
+	return listWMngi.AddTube(szOMName, tubeName, data, szCText);
+}
+
+
+/*********************************************************************
+* Description:
+*   Call the windows manager class with command:
+*   Add a Press object to the group specified by szOMName from the window
+*	The Press graphical object is ientified by:
+*		szOMName  - Press group Name
+*		pressName - graphical object name
+*	The szOMName can't be null or empty
+* Revision:
+* 2000-09-26 luci 1.0 New
+**********************************************************************/
+BOOL APIENTRY GOCL_AddPress(char *szOMName, char *presName, POINT *data, LPSTR szCText)
+{
+	return listWMngi.AddPress(szOMName, presName, data, szCText);
+}
+
+/*********************************************************************
+* Description:
+*   Call the windows manager class with command:
+*   Add a Molder object to the group specified by szOMName from the window
+*	The Molder graphical object is ientified by:
+*		szOMName  - Molder group Name
+*		molderName - graphical object name
+*	The szOMName can't be null or empty
+* Revision:
+* 2000-10-04 luci 1.0 New
+**********************************************************************/
+BOOL APIENTRY GOCL_AddMold(char *szOMName, char *moldName, POINT *data, LPSTR szCText)
+{
+	return listWMngi.AddMold(szOMName, moldName, data, szCText);
+}
+
+/*********************************************************************
+* Description:
+*   Call the windows manager class with command:
+*   Add a LogicalAnd object to the group specified by szOMName from the window
+*	The LogicalAnd graphical object is ientified by:
+*		szOMName  - Press group Name
+*		lndName - graphical object name
+*	The szOMName can't be null or empty
+* Revision:
+* 2000-09-26 luci 1.0 New
+**********************************************************************/
+BOOL APIENTRY GOCL_AddLogicalAnd(char *szOMName, char *lndName, POINT *params, LPSTR szCText)
+{
+	return listWMngi.AddLogicalAnd(szOMName, lndName, params, szCText);
 }
 
 /*********************************************************************
@@ -181,16 +259,16 @@ LONG APIENTRY GOCL_AddText(LONG wndId, LONG grpId, LONG txtID, LPSTR szText, LON
 *   Call the windows manager class with command:
 *	Set font propertyes to the specified text graphical object
 *	The text graphical object is ientified by:
-*		wndid  - window identifier
-*		grpId  - group identifier
+*		wndName  - window identifier
+*		grpName  - group identifier
 *		txtoID - graphical object identifier
-*	The grpId can be -1 => a free object in the window
+*	The grpName can be -1 => a free object in the window
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL APIENTRY GOCL_SetTextFont(LONG wndId, LONG grpId, LONG txtoId, LPSTR fName, int fsize, int fattrib)
+BOOL APIENTRY GOCL_SetTextFont(char *szOMName, char *txtoName, LPSTR fName, int fsize, int fattrib)
 {
-	return listWMngi.SetTextFont(wndId, grpId, txtoId, fName, fsize, fattrib);
+	return listWMngi.SetTextFont(szOMName, txtoName, fName, fsize, fattrib);
 }
 
 /*********************************************************************
@@ -198,17 +276,17 @@ BOOL APIENTRY GOCL_SetTextFont(LONG wndId, LONG grpId, LONG txtoId, LPSTR fName,
 *   Call the windows manager class with command:
 *	Add a Box object to one existing group from the window
 *	The text graphical object is ientified by:
-*		wndid  - window identifier
-*		grpId  - group identifier
+*		wndName  - window identifier
+*		grpName  - group identifier
 *		boxID - graphical object identifier
-*	The grpId can be -1 => a free object in the window
+*	The grpName can be -1 => a free object in the window
 *   
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG APIENTRY GOCL_AddBox(LONG wndId, LONG grpId, LONG boxID, POINT *params)
+LONG APIENTRY GOCL_AddBox(char *szOMName, char *boxName, POINT *params)
 {
-	return listWMngi.AddBox(wndId, grpId, boxID, params);
+	return listWMngi.AddBox(szOMName, boxName, params);
 }
 
 /*********************************************************************
@@ -216,17 +294,17 @@ LONG APIENTRY GOCL_AddBox(LONG wndId, LONG grpId, LONG boxID, POINT *params)
 *   Call the windows manager class with command:
 *	Add a Circle object to one existing group from the window
 *	The Circle graphical object is ientified by:
-*		wndid  - window identifier
-*		grpId  - group identifier
+*		wndName  - window identifier
+*		grpName  - group identifier
 *		cirID - graphical object identifier
-*	The grpId can be -1 => a free object in the window
+*	The grpName can be -1 => a free object in the window
 *
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG APIENTRY GOCL_AddCircle(LONG wndId, LONG grpId, LONG cirID, LONG radius, POINT *pointst)
+LONG APIENTRY GOCL_AddCircle(char *szOMName, char *cirName, POINT *pointst)
 {
-	return listWMngi.AddCircle(wndId, grpId, cirID, pointst);
+	return listWMngi.AddCircle(szOMName, cirName, pointst);
 }
 
 /*********************************************************************
@@ -234,17 +312,17 @@ LONG APIENTRY GOCL_AddCircle(LONG wndId, LONG grpId, LONG cirID, LONG radius, PO
 *   Call the windows manager class with command:
 *	Add a Polygon object to one existing group from the window
 *	The Polygon graphical object is ientified by:
-*		wndid  - window identifier
-*		grpId  - group identifier
-*		pgID - graphical object identifier
-*	The grpId can be -1 => a free object in the window
+*		wndName  - window identifier
+*		grpName  - group identifier
+*		pgName - graphical object identifier
+*	The grpName can be -1 => a free object in the window
 *
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG APIENTRY GOCL_AddPolygon(LONG wID, LONG grpId, LONG pgID, POINT *pointArray, int nofpct, LONG color, LONG bcolor, LPSTR szCText)
+LONG APIENTRY GOCL_AddPolygon(char *szOMName, char *pgName, POINT *pointArray, int nofpct)
 {
-	return listWMngi.AddPolygon(wID, grpId, pgID, pointArray, nofpct);//
+	return listWMngi.AddPolygon(szOMName, pgName, pointArray, nofpct);
 }
 
 /*********************************************************************
@@ -252,17 +330,17 @@ LONG APIENTRY GOCL_AddPolygon(LONG wID, LONG grpId, LONG pgID, POINT *pointArray
 *   Call the windows manager class with command:
 *	Add a PolyLine object to one existing group from the window
 *	The PolyLine graphical object is ientified by:
-*		wndid  - window identifier
-*		grpId  - group identifier
+*		wndName  - window identifier
+*		grpName  - group identifier
 *		plID - graphical object identifier
-*	The grpId can be -1 => a free object in the window
+*	The grpName can be -1 => a free object in the window
 *   
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG APIENTRY GOCL_AddPolyLine(LONG wID, LONG grpId, LONG plID, POINT *pointArray, int nofpct, LONG color, LPSTR szCText)
+LONG APIENTRY GOCL_AddPolyLine(char *szOMName, char *plName, POINT *pointArray, int nofpct)
 {
-	return listWMngi.AddPolyLine(wID, grpId, plID, pointArray, nofpct, color, szCText);
+	return listWMngi.AddPolyLine(szOMName, plName, pointArray, nofpct);
 }
 
 /*********************************************************************
@@ -271,21 +349,21 @@ LONG APIENTRY GOCL_AddPolyLine(LONG wID, LONG grpId, LONG plID, POINT *pointArra
 *	Move an existing graphical object in one existing group from the 
 *	window
 *	The  graphical object is ientified by:
-*		wndid  - window identifier
-*		grpId  - group identifier
+*		wndName  - window identifier
+*		grpName  - group identifier
 *		goID - graphical object identifier
-*	The grpId can be -1 => a free object in the window is moved
+*	The grpName can be -1 => a free object in the window is moved
 *	The goID can be -1 => a free object in the window is moved
-*	!Please do not call this function with both grpID and goID
+*	!Please do not call this function with both grpName and goID
 *		set to -1. The function have no efect!
 *	The graphical object is moved with mhlpoint.x to the left and
 *		mhlpoint.y to the bottom
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL APIENTRY GOCL_GobjMove(LONG wndId, LONG grpId, LONG goId, POINT mhlpoint)
+BOOL APIENTRY GOCL_GobjMove(char *szOMName, char *goName, POINT mhlpoint)
 {
-	return listWMngi.GobjMove(wndId, grpId, goId, mhlpoint);
+	return listWMngi.GobjMove(szOMName, goName, mhlpoint);
 }
 
 /*********************************************************************
@@ -294,12 +372,12 @@ BOOL APIENTRY GOCL_GobjMove(LONG wndId, LONG grpId, LONG goId, POINT mhlpoint)
 *	Move an existing graphical object in one existing group from the
 *		window to a final point "fpoint"
 *	The  graphical object is ientified by:
-*		wndid  - window identifier
-*		grpId  - group identifier
+*		wndName  - window identifier
+*		grpName  - group identifier
 *		goID - graphical object identifier
-*	The grpId can be -1 => a free object in the window is moved
+*	The grpName can be -1 => a free object in the window is moved
 *	The goID can be -1 => a free object in the window is moved
-*	!Please do not call this function with both grpID and goID
+*	!Please do not call this function with both grpName and goID
 *		set to -1. The function have no efect!
 *	The graphical object is moved with the upper left corner in
 *		the specified position. The new position will be fpoint
@@ -307,9 +385,9 @@ BOOL APIENTRY GOCL_GobjMove(LONG wndId, LONG grpId, LONG goId, POINT mhlpoint)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL APIENTRY GOCL_GobjMoveTo(LONG wndId, LONG grpId, LONG goID, POINT fpoint)
+BOOL APIENTRY GOCL_GobjMoveTo(char *wndName, char *grpName, char *goName, POINT fpoint)
 {
-	return listWMngi.GobjMoveTo(wndId, grpId, goID, fpoint);
+	return listWMngi.GobjMoveTo(wndName, grpName, goName, fpoint);
 }
 
 /*********************************************************************
@@ -365,9 +443,9 @@ BOOL APIENTRY GOCL_LoadAllObjects(LPSTR lpstrFile, HWND hparentWnd)
 * Revision:
 * 2000-03-02 luci 1.0 New
 **********************************************************************/
-BOOL APIENTRY GOCL_ChangeTxt(LONG wndId, LONG grpId, LONG txtoId, LPSTR szText)
+BOOL APIENTRY GOCL_ChangeTxt(char *wndName, char *grpName, char *txtoName, LPSTR szText)
 {
-	return listWMngi.ChangeTxt(wndId, grpId, txtoId, szText);
+	return listWMngi.ChangeTxt(wndName, grpName, txtoName, szText);
 }
 
 /*********************************************************************
@@ -375,17 +453,42 @@ BOOL APIENTRY GOCL_ChangeTxt(LONG wndId, LONG grpId, LONG txtoId, LPSTR szText)
 *   Call the windows manager class with command:
 *	Take the next graphical object comment string.
 *	to obtain the current graphical object ids we can call this 
-*		function with: wid = grid = oid = -1
+*		function with: wndName = grid = oid = -1
 *	the buffer CommentStr shoud have MAX_PATH bytes of memory
 * Revision:
 * 2000-03-02 luci 1.0 New
 **********************************************************************/
-BOOL APIENTRY GOCL_TakeNextCommentStr(LONG *wid, LONG *grid, LONG *oid, LPSTR CommentStr)
+BOOL APIENTRY GOCL_TakeNextCommentStr(char *wndName, char *grName, char *oName, LPSTR CommentStr)
 {
-	return listWMngi.TakeNextCommentStr(wid, grid, oid, CommentStr);
+	return listWMngi.TakeNextCommentStr(wndName, grName, oName, CommentStr);
 }
 
-BOOL APIENTRY GOCL_MoveClientW(LONG wid, LONG offsetX, LONG offsetY)
+BOOL APIENTRY GOCL_MoveClientW(char *wndName, LONG offsetX, LONG offsetY)
 {
-	return listWMngi.MoveClientW(wid, offsetX, offsetY);
+	return listWMngi.MoveClientW(wndName, offsetX, offsetY);
+}
+
+/*********************************************************************
+* Description:
+*   Test if the objectName exist as an object in the library
+*	or it is free to use for another object
+*
+* Revision:
+* 2000-09-20 luci 1.0 New
+**********************************************************************/
+BOOL APIENTRY GOCL_IsObject(char *objName)
+{
+	return listWMngi.IsObject(objName);
+}
+
+/*********************************************************************
+* Description:
+*   Test if the objectName exist as an object in the library
+*	or it is free to use for another object
+*
+* Revision:
+* 2000-09-20 luci 1.0 New
+**********************************************************************/
+BOOL APIENTRY GOCL_GetSelectedObjInfo(void *objInfoStruct){
+	return listWMngi.GetSelectedObjInfo(objInfoStruct);
 }

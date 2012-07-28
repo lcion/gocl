@@ -4,7 +4,7 @@ EXPORTS
     GOCL_AddView			@2
 	GOCL_SetBounds			@3
 	GOCL_SetVisible			@4
-	GOCL_CloseView			@5
+	GOCL_DeleteGObject		@5
 	GOCL_SetBackgroundColor	@6
 	GOCL_Refresh			@7
 	GOCL_AddText			@8
@@ -22,3 +22,10 @@ EXPORTS
 	GOCL_ChangeTxt			@20
 	GOCL_TakeNextCommentStr	@21
 	GOCL_MoveClientW		@22
+	GOCL_IsObject			@23
+	GOCL_AddTube			@24
+	GOCL_AddPress			@25
+	GOCL_AddLogicalAnd		@26
+	GOCL_AddMold			@27
+	GOCL_SetEditMode		@28
+	GOCL_GetSelectedObjInfo	@29

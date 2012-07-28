@@ -14,12 +14,13 @@
 class GBoxO : public SnglGObj  
 {
 public:
+	BOOL GetSelectedObjInfo(void *objInfoStruct);
 	LONG m_bgcolor2;
-	BOOL TakeCmtS(LONG *grid, LONG *oid, LPSTR CommentStr);
-	BOOL Save(ofstream *dst, LONG nID);
+	BOOL TakeCmtS(char *grName, char *oName, LPSTR CommentStr);
+	BOOL Save(ofstream *dst);
 	void Redraw(HDC owindowDC);
 	void Create(POINT *params);
-	GBoxO(int ObjId);
+	GBoxO(char *ObjName);
 	virtual ~GBoxO();
 };
 

@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GSFGen", "GSFGen.vcproj", "{9635D56B-39CD-4886-A029-CA984B832533}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gocl", "..\gocl\gocl.vcproj", "{271AF07A-DD39-4165-8D3C-CD78FB1E3A20}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "piping", "..\czec\piping.vcproj", "{F6763012-1115-49CD-9226-8F36FC9B92D8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9635D56B-39CD-4886-A029-CA984B832533}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9635D56B-39CD-4886-A029-CA984B832533}.Debug|Win32.Build.0 = Debug|Win32
+		{9635D56B-39CD-4886-A029-CA984B832533}.Release|Win32.ActiveCfg = Release|Win32
+		{9635D56B-39CD-4886-A029-CA984B832533}.Release|Win32.Build.0 = Release|Win32
+		{271AF07A-DD39-4165-8D3C-CD78FB1E3A20}.Debug|Win32.ActiveCfg = Debug|Win32
+		{271AF07A-DD39-4165-8D3C-CD78FB1E3A20}.Debug|Win32.Build.0 = Debug|Win32
+		{271AF07A-DD39-4165-8D3C-CD78FB1E3A20}.Release|Win32.ActiveCfg = Release|Win32
+		{271AF07A-DD39-4165-8D3C-CD78FB1E3A20}.Release|Win32.Build.0 = Release|Win32
+		{F6763012-1115-49CD-9226-8F36FC9B92D8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F6763012-1115-49CD-9226-8F36FC9B92D8}.Debug|Win32.Build.0 = Debug|Win32
+		{F6763012-1115-49CD-9226-8F36FC9B92D8}.Release|Win32.ActiveCfg = Release|Win32
+		{F6763012-1115-49CD-9226-8F36FC9B92D8}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -53,12 +53,11 @@ BEGIN
     END
     POPUP "&Action"
     BEGIN
-        MENUITEM "&Start Animation",            ID_ACTION_START
-        MENUITEM "S&top Animation",             ID_ACTION_STOP
-        MENUITEM "Create &Child Window",        ID_ACTION_CREATECHLDW
-        MENUITEM "&Destroy Child Window",       ID_ACTION_DESTCHLDW
+        MENUITEM "&Animation",                  ID_ACTION_ANIMATION
+        MENUITEM "&Child Window",               ID_ACTION_CHLDWND
         MENUITEM "Test Memory Lick",            ID_ACTION_TESTMEMORYLICK
         MENUITEM "Connect ADS",                 ID_ACTION_CONNECTADS
+        MENUITEM "Edit Mode",                   ID_ACTION_EDITMODE
     END
     POPUP "&Help"
     BEGIN
@@ -86,47 +85,48 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG  22, 17, 230, 75
+IDD_ABOUTBOX DIALOGEX 22, 17, 230, 67
 STYLE DS_SETFONT | DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
-FONT 8, "System"
+FONT 8, "System", 0, 0, 0x0
 BEGIN
     ICON            IDI_GSFGEN,IDC_MYICON,14,9,20,20
-    LTEXT           "GSFGen Version 1.0",IDC_STATIC,49,10,119,8,SS_NOPREFIX
-    LTEXT           "Copyright (C) 2000",IDC_STATIC,49,20,119,8
+    LTEXT           "Graphical script file generator",IDC_STATIC,43,10,146,8,SS_NOPREFIX
+    LTEXT           "GSFGen v1.1 2000 by Lucian Ion",IDC_STATIC,43,20,107,8
     DEFPUSHBUTTON   "OK",IDOK,195,6,30,11,WS_GROUP
+    LTEXT           "The application is made to help the user to build the script language for the gocl.dll library.",IDC_STATIC,43,40,156,16
 END
 
-IDD_NCREATEOW DIALOG  0, 0, 198, 95
+IDD_NCREATEOW DIALOG  0, 0, 206, 108
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,139,7,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,139,24,50,14
-    LTEXT           "ID:",IDC_STATIC,11,9,9,8
-    EDITTEXT        IDC_OID,21,7,35,12,ES_AUTOHSCROLL
-    CONTROL         "Spin1",IDC_OBJECTID,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,45,11,6,12
-    EDITTEXT        IDC_ELEFT,19,36,34,12,ES_AUTOHSCROLL
-    CONTROL         "Spin1",IDC_OBJECTLP,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,55,31,6,12
-    EDITTEXT        IDC_ETOP,66,36,34,12,ES_AUTOHSCROLL
-    CONTROL         "Spin1",IDC_OBJECTTP,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,101,37,6,12
-    EDITTEXT        IDC_EBOTTOM,19,49,34,12,ES_AUTOHSCROLL
-    CONTROL         "Spin1",IDC_OBJECTBP,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,54,64,6,12
-    EDITTEXT        IDC_ERIGHT,66,50,34,12,ES_AUTOHSCROLL
-    CONTROL         "Spin1",IDC_OBJECTRP,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,101,49,6,12
-    EDITTEXT        IDC_ECOLOR,116,50,28,12,ES_AUTOHSCROLL
-    CONTROL         "Spin2",IDC_SCOLOR,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,126,64,13,12
-    EDITTEXT        IDC_EBCOLOR,150,50,28,12,ES_AUTOHSCROLL
-    CONTROL         "Spin3",IDC_SBCOLOR,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,165,63,11,14
-    LTEXT           "R",IDC_STATIC,58,53,8,10
-    LTEXT           "T",IDC_STATIC,58,38,8,10
-    LTEXT           "Position:",IDC_STATIC,17,27,32,8
-    LTEXT           "L",IDC_STATIC,11,39,8,10
-    LTEXT           "B",IDC_STATIC,11,53,8,10
-    LTEXT           "Colors:",IDC_STATIC,117,41,35,8
-    PUSHBUTTON      "Start Recording Points",IDC_STARTRP,58,7,80,14
-    EDITTEXT        IDC_FREETEXT,9,71,172,14,ES_AUTOHSCROLL
-    LTEXT           "Free Parameters:",IDC_STATIC,11,62,53,8
+    DEFPUSHBUTTON   "OK",IDOK,145,7,50,13
+    PUSHBUTTON      "Cancel",IDCANCEL,145,22,50,13
+    EDITTEXT        IDC_OMNAME,62,10,73,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ONAME,62,22,73,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ELEFT,19,50,34,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EBOTTOM,19,64,34,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_ETOP,66,50,34,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_ERIGHT,66,64,34,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Colors",IDC_BCOLORS,114,50,35,12
+    EDITTEXT        IDC_ECOLOR,114,64,35,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EBCOLOR,160,50,35,12,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EBCOLOR1,160,64,35,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_FREETEXT,10,84,186,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Font",IDC_FONTB,145,37,50,12
+    LTEXT           "Object Name:",IDC_STATIC,10,26,43,8
+    LTEXT           "R",IDC_RIGHTLBL,58,67,8,10
+    LTEXT           "T",IDC_STATIC,58,52,8,10
+    LTEXT           "Position:",IDC_STATIC,10,40,26,8
+    LTEXT           "L",IDC_STATIC,10,53,8,10
+    LTEXT           "B",IDC_BOTTOMLBL,10,67,8,10
+    PUSHBUTTON      "Start Recording Points",IDC_STARTRP,59,36,80,13
+    LTEXT           "Free Parameters:",IDC_STATIC,11,76,53,8
+    LTEXT           "Group Name:",IDC_STATIC,10,13,42,8
+    LTEXT           "F:",IDC_STATIC,106,67,8,9
+    LTEXT           "B:",IDC_STATIC,151,52,5,9
+    LTEXT           "B1",IDC_BAKGROUND1LBL,151,67,9,9
 END
 
 
@@ -172,10 +172,15 @@ BEGIN
     BUTTON      ID_POGCNEWO
     BUTTON      ID_POLCNEWO
     BUTTON      ID_PRSCNEWO
-    BUTTON      ID_REZCNEWO
+    BUTTON      ID_TUBCNEWO
     BUTTON      ID_TXTCNEWO
+    BUTTON      ID_MLDCNEWO
     BUTTON      ID_DELWO
+    BUTTON      ID_GRPCNEWO
     BUTTON      ID_WNDCNEWO
+    BUTTON      ID_COPYGO
+    BUTTON      ID_PASTEGO
+    BUTTON      ID_EDITGO
 END
 
 
@@ -197,9 +202,9 @@ BEGIN
     IDD_NCREATEOW, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 191
+        RIGHTMARGIN, 199
         TOPMARGIN, 7
-        BOTTOMMARGIN, 88
+        BOTTOMMARGIN, 101
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -220,7 +225,7 @@ END
 STRINGTABLE 
 BEGIN
     ID_PRSCNEWO             "Create Prs Object"
-    ID_REZCNEWO             "Create Resistance Objject"
+    ID_TUBCNEWO             "Create Tube Objject"
     ID_TXTCNEWO             "Create Text Object"
     ID_DELWO                "Delete Object"
     ID_WNDCNEWO             "Create New Window"
@@ -230,7 +235,7 @@ STRINGTABLE
 BEGIN
     ID_BOXCNEWO             "Create Rectangle Objject"
     ID_CIRCNEWO             "Create Circle Objject"
-    ID_LNDCNEWO             "Create LND Objject"
+    ID_LNDCNEWO             "Create LogicalAnd Objject"
     ID_POGCNEWO             "Create Polygon Objject"
     ID_POLCNEWO             "Create PolyLine Object"
 END

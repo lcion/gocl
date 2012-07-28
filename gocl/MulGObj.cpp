@@ -1,26 +1,50 @@
-// MulGObj.cpp: implementation of the MulGObj class.
-//
-//////////////////////////////////////////////////////////////////////
+/* MulGObj.cpp *******************************************************
+*	 Description: implementation of the MulGObj class.
+*
+*	Functions:
+*		MulGObj::MulGObj
+*		MulGObj::~MulGObj
+*		MulGObj::AddText
+*		MulGObj::SetTextFont
+*		MulGObj::MoveTo
+*		MulGObj::Move
+*		MulGObj::AddBox
+*		MulGObj::AddCircle
+*		MulGObj::AddPolygon
+*		MulGObj::Redraw
+*		MulGObj::AddPolyLine
+*		MulGObj::GobjChgColors
+*		MulGObj::Save
+*		MulGObj::AddTub
+*		MulGObj::AddPress
+*		MulGObj::ChangeTxt
+*		MulGObj::AddLogicalAnd
+*		MulGObj::TakeCmtS
+*		MulGObj::AddMold
+*		MulGObj::IsObject
+*		MulGObj::DeleteGObject
+*		MulGObj::SelectGObject
+*		
+*	Revision:
+*		2000-10-05 luci 1.0 New
+**********************************************************************/
 
 #include "MulGObj.h"
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 /*********************************************************************
-* Description:
+* Description:Construction
 *   
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-MulGObj::MulGObj( int ObjId, HWND hclsWnd):SnglGObj(ObjId)
+MulGObj::MulGObj( char *ObjName, HWND hclsWnd):SnglGObj(ObjName)
 {
 	m_clsWnd = hclsWnd;
 }
 
 /*********************************************************************
-* Description:
+* Description:Destruction
 *   
 * Revision:
 * 2000-02-23 luci 1.0 New
@@ -42,15 +66,12 @@ MulGObj::~MulGObj()
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-int MulGObj::AddText(LONG txtID, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText)
+int MulGObj::AddText(char* txtName, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText)
 {
-	if(grpOList.CheckNewID(txtID) == -1)
-		return -1;
-	GTxtO *pGobj = new GTxtO(txtID);
+	GTxtO *pGobj = new GTxtO(txtName);
 	pGobj->Create(m_clsWnd, szText, x, y, color, bcolor, szCText);
-//	LONG theID = grpOList.GetNewID();	void Create(HWND m_clsWnd, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText);
-	grpOList.AddNode(txtID, pGobj);
-	return txtID;
+	grpOList.AddNode(txtName, pGobj);
+	return 1;
 }
 
 /*********************************************************************
@@ -59,9 +80,9 @@ int MulGObj::AddText(LONG txtID, LPSTR szText, LONG x, LONG y, LONG color, LONG 
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-BOOL MulGObj::SetTextFont(LONG txtoId, LPSTR fName, int fsize, int fattrib)
+BOOL MulGObj::SetTextFont(char *txtOName, LPSTR fName, int fsize, int fattrib)
 {
-	GTxtO *gtxtO = (GTxtO*) grpOList.GetHandle(txtoId);
+	GTxtO *gtxtO = (GTxtO*) grpOList.GetHandle(txtOName);
 	gtxtO->SetFont(fName, fsize, fattrib);
 	return true;
 }
@@ -72,11 +93,11 @@ BOOL MulGObj::SetTextFont(LONG txtoId, LPSTR fName, int fsize, int fattrib)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-int MulGObj::MoveTo(LONG txtoId, POINT point)
+int MulGObj::MoveTo(char *txtoName, POINT point)
 {
-	if(txtoId != ALL_OBJS)
+	if(txtoName[0] != '\0')
 	{
-		SnglGObj *gtxtO = (SnglGObj*) grpOList.GetHandle(txtoId);
+		SnglGObj *gtxtO = (SnglGObj*) grpOList.GetHandle(txtoName);
 		return gtxtO->MoveTo(m_clsWnd, point);
 	}
 	Node *pListItem = grpOList.GetFirstItem();
@@ -96,11 +117,11 @@ int MulGObj::MoveTo(LONG txtoId, POINT point)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-int MulGObj::Move(LONG txtoId, POINT point)
+int MulGObj::Move(char *txtoName, POINT point)
 {
-	if(txtoId != ALL_OBJS)
+	if(txtoName[0] != '\0')
 	{
-		SnglGObj *gtxtO = (SnglGObj*) grpOList.GetHandle(txtoId);
+		SnglGObj *gtxtO = (SnglGObj*) grpOList.GetHandle(txtoName);
 		return gtxtO->Move(m_clsWnd, point);
 	}
 	Node *pListItem = grpOList.GetFirstItem();
@@ -120,14 +141,15 @@ int MulGObj::Move(LONG txtoId, POINT point)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-int MulGObj::AddBox(LONG boxID, POINT *params)
+int MulGObj::AddBox(char *boxName, POINT *params)
 {
-	if(grpOList.CheckNewID(boxID) == -1)
-		return -1;
-	GBoxO *pGobj = new GBoxO(boxID);
+/*	if(grpOList.CheckNewID(boxID) == -1)
+		return -1;*/
+	GBoxO *pGobj = new GBoxO(boxName);
 	pGobj->Create(params);
-	grpOList.AddNode(boxID, pGobj);
-	return boxID;
+	grpOList.AddNode(boxName, pGobj);
+//	return boxID;
+	return 1;
 }
 
 /*********************************************************************
@@ -136,14 +158,15 @@ int MulGObj::AddBox(LONG boxID, POINT *params)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG MulGObj::AddCircle(LONG cirID, POINT *pointst)
+LONG MulGObj::AddCircle(char *cirName, POINT *pointst)
 {
-	if(grpOList.CheckNewID(cirID) == -1)
-		return -1;
-	GCircleO *pGobj = new GCircleO(cirID);
+/*	if(grpOList.CheckNewID(cirID) == -1)
+		return -1;*/
+	GCircleO *pGobj = new GCircleO(cirName);
 	pGobj->Create(pointst);
-	grpOList.AddNode(cirID, pGobj);
-	return cirID;
+	grpOList.AddNode(cirName, pGobj);
+//	return cirID;
+	return 1;
 }
 
 /*********************************************************************
@@ -152,14 +175,12 @@ LONG MulGObj::AddCircle(LONG cirID, POINT *pointst)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG MulGObj::AddPolygon(LONG pgID, POINT *pointArray, int nofpct) //, LONG color, LONG bcolor, LPSTR szCText
+LONG MulGObj::AddPolygon(char *pgName, POINT *pointArray, int nofpct) //, LONG color, LONG bcolor, LPSTR szCText
 {
-	if(grpOList.CheckNewID(pgID) == -1)
-		return -1;
-	GPolygO *pGobj = new GPolygO(pgID);
+	GPolygO *pGobj = new GPolygO(pgName);
 	pGobj->Create(pointArray, nofpct);//, color, bcolor, szCText
-	grpOList.AddNode(pgID, pGobj);
-	return pgID;
+	grpOList.AddNode(pgName, pGobj);
+	return 1;
 }
 
 /*********************************************************************
@@ -185,14 +206,12 @@ void MulGObj::Redraw(HDC memHdc)
 * Revision:
 * 2000-02-23 luci 1.0 New
 **********************************************************************/
-LONG MulGObj::AddPolyLine(LONG plID, POINT *pointArray, int nofpct, LONG color, LPSTR szCText)
+LONG MulGObj::AddPolyLine(char *plName, POINT *pointArray, int nofpct)
 {
-	if(grpOList.CheckNewID(plID) == -1)
-		return -1;
-	GPolyLO *pGobj = new GPolyLO(plID);
-	pGobj->Create(pointArray, nofpct, color, szCText);
-	grpOList.AddNode(plID, pGobj);
-	return plID;
+	GPolyLO *pGobj = new GPolyLO(plName);
+	pGobj->Create(pointArray, nofpct);
+	grpOList.AddNode(plName, pGobj);
+	return 1;
 }
 
 /*********************************************************************
@@ -201,11 +220,11 @@ LONG MulGObj::AddPolyLine(LONG plID, POINT *pointArray, int nofpct, LONG color, 
 * Revision:
 * 2000-03-21 luci 1.0 New
 **********************************************************************/
-LONG MulGObj::GobjChgColors(LONG objID, LONG bcolor, LONG color)
+LONG MulGObj::GobjChgColors(char *objName, LONG bcolor, LONG color)
 {
-	if(objID != ALL_OBJS)
+	if(objName != '\0')
 	{
-		SnglGObj *gobj = (SnglGObj*) grpOList.GetHandle(objID);
+		SnglGObj *gobj = (SnglGObj*) grpOList.GetHandle(objName);
 		return gobj->GobjChgColors(bcolor, color);
 	}
 	Node *pListItem = grpOList.GetFirstItem();
@@ -226,15 +245,15 @@ LONG MulGObj::GobjChgColors(LONG objID, LONG bcolor, LONG color)
 * Revision:
 * 2000-03-21 luci 1.0 New
 **********************************************************************/
-BOOL MulGObj::Save(ofstream *dst, LONG nID)
+BOOL MulGObj::Save(ofstream *dst)
 {
 	Node *pListItem = grpOList.GetFirstItem();
 	int retval = 1;
-	*dst << "BGRP " << nID << endl;
+	*dst << "BGRP " << m_GOName << endl;
 	while(pListItem != NULL)
 	{
 		SnglGObj *pGObj = (SnglGObj *)pListItem->LpvCls;
-		pGObj->Save(dst, pListItem->nID);
+		pGObj->Save(dst);
 		pListItem = pListItem->next;
 	}
 	*dst << "EGRP" << endl;
@@ -247,14 +266,12 @@ BOOL MulGObj::Save(ofstream *dst, LONG nID)
 * Revision:
 * 2000-03-21 luci 1.0 New
 **********************************************************************/
-LONG MulGObj::AddRez(LONG rezID, POINT *data, LPSTR szCText)
+LONG MulGObj::AddTub(char *tubName, POINT *data, LPSTR szCText)
 {
-	if(grpOList.CheckNewID(rezID) == -1)
-		return -1;
-	GRezO *pGobj = new GRezO(rezID);
+	GTubO *pGobj = new GTubO(tubName);
 	pGobj->Create(data, szCText);
-	grpOList.AddNode(rezID, pGobj);
-	return rezID;
+	grpOList.AddNode(tubName, pGobj);
+	return 1;
 }
 
 /*********************************************************************
@@ -263,14 +280,12 @@ LONG MulGObj::AddRez(LONG rezID, POINT *data, LPSTR szCText)
 * Revision:
 * 2000-03-21 luci 1.0 New
 **********************************************************************/
-LONG MulGObj::AddPress(LONG presID, POINT *data, LPSTR szCText)
+LONG MulGObj::AddPress(char *presName, POINT *data, LPSTR szCText)
 {
-	if(grpOList.CheckNewID(presID) == -1)
-		return -1;
-	GPresO *pGobj = new GPresO(presID);
+	GPresO *pGobj = new GPresO(presName);
 	pGobj->Create(data, szCText);
-	grpOList.AddNode(presID, pGobj);
-	return presID;
+	grpOList.AddNode(presName, pGobj);
+	return 1;
 }
 
 /*********************************************************************
@@ -279,9 +294,9 @@ LONG MulGObj::AddPress(LONG presID, POINT *data, LPSTR szCText)
 * Revision:
 * 2000-03-21 luci 1.0 New
 **********************************************************************/
-void MulGObj::ChangeTxt(LONG txtoId, LPSTR szText)
+void MulGObj::ChangeTxt(char *txtoName, LPSTR szText)
 {
-	GTxtO *gtxtO = (GTxtO*) grpOList.GetHandle(txtoId);
+	GTxtO *gtxtO = (GTxtO*) grpOList.GetHandle(txtoName);
 	gtxtO->ChangeTxt(m_clsWnd,szText);
 }
 
@@ -291,14 +306,12 @@ void MulGObj::ChangeTxt(LONG txtoId, LPSTR szText)
 * Revision:
 * 2000-03-21 luci 1.0 New
 **********************************************************************/
-int MulGObj::AddLogicalAnd(LONG landID, POINT *params, LPSTR szCText)
+int MulGObj::AddLogicalAnd(char *landName, POINT *params, LPSTR szCText)
 {
-	if(grpOList.CheckNewID(landID) == -1)
-		return -1;
-	GLndO *pGobj = new GLndO(landID);
+	GLndO *pGobj = new GLndO(landName);
 	pGobj->Create(params, szCText);
-	grpOList.AddNode(landID, pGobj);
-	return landID;
+	grpOList.AddNode(landName, pGobj);
+	return 1;
 }
 
 /*********************************************************************
@@ -307,22 +320,17 @@ int MulGObj::AddLogicalAnd(LONG landID, POINT *params, LPSTR szCText)
 * Revision:
 * 2000-03-21 luci 1.0 New
 **********************************************************************/
-BOOL MulGObj::TakeCmtS(LONG *gid, LONG *oid, LPSTR CommentStr)
+BOOL MulGObj::TakeCmtS(char *gName, char *oName, LPSTR CommentStr)
 {
 	SnglGObj *pGObj;
-	pGObj = (SnglGObj *)grpOList.GetNextClsPtr(oid);
-	while(pGObj && false == pGObj->TakeCmtS(gid, oid, CommentStr))
-		pGObj = (SnglGObj *)grpOList.GetNextClsPtr(oid);
+	pGObj = (SnglGObj *)grpOList.GetNextClsPtr(oName);
+	while(pGObj && false == pGObj->TakeCmtS(gName, oName, CommentStr))
+		pGObj = (SnglGObj *)grpOList.GetNextClsPtr(oName);
 	if(pGObj)
 		return true;
 	else
 		return false;
 }
-/*	if(*oid == -1)
-		pGObj = (SnglGObj *)grpOList.GetNextClsPtr(oid);
-	else
-		pGObj = (SnglGObj *)grpOList.GetHandle(*oid);
-*/
 
 /*********************************************************************
 * Description:
@@ -330,12 +338,94 @@ BOOL MulGObj::TakeCmtS(LONG *gid, LONG *oid, LPSTR CommentStr)
 * Revision:
 * 2000-03-27 luci 1.0 New
 **********************************************************************/
-LONG MulGObj::AddMold(LONG moldID, POINT *params, LPSTR szCText)
+LONG MulGObj::AddMold(char *moldName, POINT *params, LPSTR szCText)
 {
-	if(grpOList.CheckNewID(moldID) == -1)
-		return -1;
-	GMoldO *pGobj = new GMoldO(moldID);
+	GMoldO *pGobj = new GMoldO(moldName);
 	pGobj->Create(params, szCText);
-	grpOList.AddNode(moldID, pGobj);
-	return moldID;
+	grpOList.AddNode(moldName, pGobj);
+	return 1;
+}
+
+/*********************************************************************
+* Description: IsObject
+*   
+* Revision:
+* 2000-03-27 luci 1.0 New
+**********************************************************************/
+BOOL MulGObj::IsObject(char *objName)
+{
+	if(SnglGObj::IsObject(objName))
+		return TRUE;
+	SnglGObj *pGObj;
+	Node *gNode = grpOList.GetFirstItem();
+	while(gNode){
+		if( strcmp(gNode->strnID, objName) == 0)
+			return TRUE;
+		pGObj = (SnglGObj *) gNode->LpvCls;
+		if(pGObj->IsObject(objName))
+			return TRUE;
+		gNode = grpOList.GetNextItem(gNode);
+	}
+	return FALSE;
+}
+
+/*********************************************************************
+* Description: DeleteGObject
+*   
+* Revision:
+* 2000-10-05 luci 1.0 New
+**********************************************************************/
+BOOL MulGObj::DeleteGObject(char *objName)
+{
+	SnglGObj *pGObj;
+	Node *gNode = grpOList.GetFirstItem();
+	while(gNode){
+		pGObj = (SnglGObj *) gNode->LpvCls;
+		if( strcmp(gNode->strnID, objName) == 0){
+			grpOList.DelItem( objName );
+			delete pGObj;
+			return TRUE;
+		}
+		if(pGObj->DeleteGObject(objName))
+			return TRUE;
+		gNode = grpOList.GetNextItem(gNode);
+	}
+	return FALSE;
+}
+
+/*********************************************************************
+* Description: SelectGObject
+*   
+* Revision:
+* 2000-10-05 luci 1.0 New
+**********************************************************************/
+BOOL MulGObj::SelectGObject(UINT x, UINT y)
+{
+	SnglGObj *pGObj;
+	Node *gNode = grpOList.GetLastItem();
+	while(gNode){
+		pGObj = (SnglGObj *) gNode->LpvCls;
+		if(pGObj->SelectGObject(x, y))
+			return TRUE;
+		gNode = grpOList.GetPreviousItem(gNode);
+	}
+	return FALSE;
+}
+
+BOOL MulGObj::GetSelectedObjInfo(void *objInfoStruct)
+{
+	SnglGObj *pGObj;
+	OBJINFO * pObjInf =(OBJINFO *)objInfoStruct;
+	Node *gNode = grpOList.GetFirstItem();
+	while(gNode){
+		pGObj = (SnglGObj *) gNode->LpvCls;
+		if(pGObj->GetSelectedObjInfo(objInfoStruct))
+		{
+			if(!pObjInf->strOMName)
+				pObjInf->strOMName = m_GOName;
+			return TRUE;
+		}
+		gNode = grpOList.GetNextItem(gNode);
+	}
+	return FALSE;
 }

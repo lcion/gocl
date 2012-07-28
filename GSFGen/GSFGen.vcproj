@@ -75,10 +75,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib gocl.lib"
-				OutputFile="..\Bin/$(ConfigurationName)/GSFGen.exe"
+				AdditionalDependencies="odbc32.lib odbccp32.lib comctl32.lib gocl.lib"
+				OutputFile="../Bin/$(ConfigurationName)/GSFGen.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="../gocl/$(ConfigurationName)"
 				ProgramDatabaseFile=".\Release/GSFGen.pdb"
 				SubSystem="2"
 				TargetMachine="1"
@@ -112,7 +113,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="../Bin/$(ConfigurationName)"
+			OutputDirectory=".\Debug"
 			IntermediateDirectory=".\Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -174,12 +175,14 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="odbc32.lib odbccp32.lib comctl32.lib gocl.lib"
-				OutputFile="..\Bin/$(ConfigurationName)/GSFGen.exe"
+				OutputFile="../Bin/$(ConfigurationName)/GSFGen.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="../gocl/$(ConfigurationName)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/GSFGen.pdb"
 				SubSystem="2"
+				ImportLibrary="..\gocl\Debug/gocl.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -218,7 +221,49 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath="AboutCode.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="ADScomm.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="ADSconnect.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -280,6 +325,27 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="NewObjDlg.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="StdAfx.cpp"
 				>
 				<FileConfiguration
@@ -308,11 +374,27 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath="AboutCode.h"
+				>
+			</File>
+			<File
 				RelativePath="ADScomm.h"
 				>
 			</File>
 			<File
+				RelativePath="ADSconnect.h"
+				>
+			</File>
+			<File
+				RelativePath="gocl.h"
+				>
+			</File>
+			<File
 				RelativePath="GSFGen.h"
+				>
+			</File>
+			<File
+				RelativePath="NewObjDlg.h"
 				>
 			</File>
 			<File

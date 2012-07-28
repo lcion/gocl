@@ -12,37 +12,46 @@ using namespace std;
 #pragma once
 #endif // _MSC_VER > 1000
 
-class ListWMng  
+class ListWMng
 {
 public:
-	BOOL MoveClientW(LONG wid, LONG x, LONG y);
-	BOOL TakeNextCommentStr(LONG *wid, LONG *grid, LONG *oid, LPSTR CommentStr);
-	BOOL ChangeTxt(LONG wndId, LONG grpId, LONG txtoId, LPSTR szText);
+	BOOL GetSelectedObjInfo(void *objInfoStruct);
+	void SetEditMode(UCHAR bEditMode);
+	BOOL AddMold(char *szOMName, char *moldName, POINT *data, LPSTR szCText);
+	BOOL AddLogicalAnd(char *grpName, char *lndName, POINT *params, LPSTR szCText);
+	BOOL AddPress(char *grpName, char *presName, POINT *data, LPSTR szCText);
+	BOOL AddTube(char *grpName, char *tubName, POINT *data, LPSTR szCText);
+	BOOL IsObject(char *objName);
+	BOOL MoveClientW(char *wndName, LONG x, LONG y);
+	BOOL TakeNextCommentStr(char *wndName, char *grName, char *oName, LPSTR CommentStr);
+	BOOL ChangeTxt(char *wndName, char *grpName, char *txtoName, LPSTR szText);
 	HWND m_hparentW;
 	BOOL LoadAllObjects(ifstream *src, HWND hparentWnd);
 	BOOL SaveAllObjects(ofstream *dst);
-	LONG GobjChgColors(LONG wID, LONG grpId, LONG objID, LONG bcolor, LONG color);
-	LONG AddPolyLine(LONG wID, LONG grpId, LONG plID, POINT *pointArray, int nofpct, LONG color, LPSTR szCText);
-	LONG AddGroup(LONG wID, LONG gID);
-	LONG AddPolygon(LONG wID, LONG grpId, LONG pgID, POINT *pointArray, int nofpct);
-	LONG AddCircle(LONG wID, LONG grpId, LONG cirID, POINT *pointst);
-	int AddBox(LONG wID, LONG grpId, LONG boxID, POINT *params);
-	BOOL GobjMove(LONG wndId, LONG grpId, LONG txtoId, POINT point);
-	BOOL GobjMoveTo(LONG wndId, LONG grpId, LONG txtoId, POINT point);
-	BOOL SetTextFont(LONG wndId, LONG grpId, LONG txtoId, LPSTR fName, int fsize, int fattrib);
+	LONG GobjChgColors(char *wndName, char *grpName, char *objName, LONG bcolor, LONG color);
+	LONG AddPolyLine(char *szOMName, char *plName, POINT *pointArray, int nofpct);
+	LONG AddGroup(char *wName, char *gName);
+	LONG AddPolygon(char *szOMName, char *pgName, POINT *pointArray, int nofpct);
+	LONG AddCircle(char *szOMName, char *cirName, POINT *pointst);
+	int AddBox(char *szOMName, char *boxName, POINT *params);
+	BOOL GobjMove(char *szOMName, char *goName, POINT point);
+	BOOL GobjMoveTo(char *wndName, char *grpName, char *txtoName, POINT point);
+	BOOL SetTextFont(char *szOMName, char *txtoName, LPSTR fName, int fsize, int fattrib);
 	HINSTANCE m_hAppInst;
 	Lista SWOlist;
 	void SethInst(HINSTANCE hInstance);
-	BOOL SetVisible(LONG hidx, BOOL visible);
-	BOOL SetBounds(LONG hidx, LONG x, LONG y, LONG width, LONG height);
-	WORD SetBackgroundColor(LONG hidx, LONG color);
-	BOOL Refresh(LONG hidx);
-	BOOL CloseView(LONG hidx);
-	LONG AddText(LONG tWndId, LONG grpId, LONG txtID, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText);
-	LONG AddView(LONG wID, HWND hwndParent);
+	BOOL SetVisible(char *wndName, BOOL visible);
+	BOOL SetBounds(char *wndName, LONG x, LONG y, LONG width, LONG height);
+	WORD SetBackgroundColor(char *wndName, LONG color);
+	BOOL Refresh(char *wndName);
+	BOOL DeleteGObject(char *objName);
+	LONG AddText(char *szOMName, char *txtName, LPSTR szText, LONG x, LONG y, LONG color, LONG bcolor, LPSTR szCText);
+	LONG AddView(char *wName, HWND hwndParent);
 	ListWMng();
 	virtual ~ListWMng();
 
+private:
+	void *GetWObjByOMName(char *szOMName);
 };
 
 #endif // !defined(AFX_LISTWMNG_H__EE689A42_D583_11D3_ACBE_00500449492C__INCLUDED_)

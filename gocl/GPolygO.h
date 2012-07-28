@@ -14,16 +14,17 @@
 class GPolygO : public SnglGObj  
 {
 public:
+	BOOL GetSelectedObjInfo(void *objInfoStruct);
 	LONG m_bgcolor2;
-	BOOL TakeCmtS(LONG *grid, LONG *oid, LPSTR CommentStr);
-	BOOL Save(ofstream *dst, LONG nID);
+	BOOL TakeCmtS(char *grName, char *oName, LPSTR CommentStr);
+	BOOL Save(ofstream *dst);
 	int Move(HWND hWnd, POINT mhlPoint);
 	void SetLimitis(RECT *pRect);
 	void AdjustGmove();
 	int m_nofPct;
 	void Redraw(HDC memHdc);
 	void Create(POINT *pointst, int nofPt);
-	GPolygO(int ObjId);
+	GPolygO(char *ObjName);
 	virtual ~GPolygO();
 
 };
