@@ -15,3 +15,7 @@ Resistor
 Logical And shape
 Tyre Mold
 Press
+
+Use visual studio express 2012 for windows Desktop to build the projects
+The project is a C++ library using win32 API and no other dependencies
+The library was originally designed for visualising an industrial automation machine state

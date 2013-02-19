@@ -11,7 +11,7 @@
 *		InitializeLibADS
 *		CreateLinksTable
 *
-* Autor:		Luci
+* Autor:		Lucian
 * Date:			2000-03-21
 **********************************************************************/
 

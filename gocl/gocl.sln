@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gocl", "gocl.vcxproj", "{383D64C2-F736-46D3-8F76-7864F5A22401}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GSFGen", "..\GSFGen\GSFGen.vcxproj", "{5D2D7472-500A-42D7-B3C7-28CCFD856289}"
+	ProjectSection(ProjectDependencies) = postProject
+		{383D64C2-F736-46D3-8F76-7864F5A22401} = {383D64C2-F736-46D3-8F76-7864F5A22401}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "piping", "..\piping\piping.vcxproj", "{F6763012-1115-49CD-9226-8F36FC9B92D8}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -19,9 +22,11 @@ Global
 		{383D64C2-F736-46D3-8F76-7864F5A22401}.Debug|Win32.ActiveCfg = Debug|Win32
 		{383D64C2-F736-46D3-8F76-7864F5A22401}.Debug|Win32.Build.0 = Debug|Win32
 		{383D64C2-F736-46D3-8F76-7864F5A22401}.Release|Win32.ActiveCfg = Release|Win32
+		{383D64C2-F736-46D3-8F76-7864F5A22401}.Release|Win32.Build.0 = Release|Win32
 		{5D2D7472-500A-42D7-B3C7-28CCFD856289}.Debug|Win32.ActiveCfg = Debug|Win32
 		{5D2D7472-500A-42D7-B3C7-28CCFD856289}.Debug|Win32.Build.0 = Debug|Win32
 		{5D2D7472-500A-42D7-B3C7-28CCFD856289}.Release|Win32.ActiveCfg = Release|Win32
+		{5D2D7472-500A-42D7-B3C7-28CCFD856289}.Release|Win32.Build.0 = Release|Win32
 		{F6763012-1115-49CD-9226-8F36FC9B92D8}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F6763012-1115-49CD-9226-8F36FC9B92D8}.Debug|Win32.Build.0 = Debug|Win32
 		{F6763012-1115-49CD-9226-8F36FC9B92D8}.Release|Win32.ActiveCfg = Release|Win32
